@@ -5,6 +5,7 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import vexybot.dao.DatabaseManager;
 
 public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
@@ -16,6 +17,7 @@ public class Bot extends TelegramLongPollingBot {
                 sendMessage.setChatId(String.valueOf(message.getChatId()));
                 sendMessage.enableMarkdown(true);
                 try {
+                    DatabaseManager.add(213, "LOLL", "LOOOOl");
                     sendMessage(sendMessage);
                 } catch (TelegramApiException e) {
                 }

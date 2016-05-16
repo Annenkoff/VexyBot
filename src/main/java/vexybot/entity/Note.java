@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Notes", schema = "vex", catalog = "")
-public class NotesEntity {
+public class Note {
     private int id;
     private int chatId;
     private String name;
@@ -55,7 +55,7 @@ public class NotesEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NotesEntity that = (NotesEntity) o;
+        Note that = (Note) o;
 
         if (id != that.id) return false;
         if (chatId != that.chatId) return false;
