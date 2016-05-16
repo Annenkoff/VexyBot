@@ -16,11 +16,7 @@ public class Bot extends TelegramLongPollingBot {
                 sendMessage.setText(message.getText());
                 sendMessage.setChatId(String.valueOf(message.getChatId()));
                 sendMessage.enableMarkdown(true);
-                try {
-                    NotesManager.add(Integer.parseInt(String.valueOf(message.getChatId())), "LOLL", "LOOOOl");
-                    sendMessage(sendMessage);
-                } catch (TelegramApiException e) {
-                }
+                handleIncomingMessage(message);
             }
         }
     }
@@ -31,5 +27,34 @@ public class Bot extends TelegramLongPollingBot {
 
     public String getBotToken() {
         return Config.TOKEN;
+    }
+
+    private void handleIncomingMessage(Message message) {
+        if (message.getText().contains("создать заметку") || message.getText().contains("создай заметку")) {
+            createNote(Integer.parseInt(String.valueOf(message.getChatId())), message.getText());
+            try {
+                sendMessage(new SendMessage()
+                        .setText("Заметка создана. Ты можешь посмотреть все заметки командой /notes")
+                        .setReplayToMessageId(message.getMessageId())
+                        .setChatId(String.valueOf(message.getChatId())));
+            } catch (TelegramApiException e) {
+            }
+        }
+    }
+
+    private void createNote(int id, String note) {
+        if (note.contains("\n")) {
+            String[] s = note.split("\n");
+            if (s.length > 2) {
+                String string = "";
+                for (int a = 2; a < s.length; a++) {
+                    string += s[a];
+                    string += "\n";
+                }
+                NotesManager.add(id, s[1], string);
+            }
+        } else {
+
+        }
     }
 }
