@@ -5,7 +5,7 @@ import org.hibernate.SessionFactory;
 import vexybot.entity.Note;
 import vexybot.util.HibernateSessionFactory;
 
-public class DatabaseManager {
+public class NotesManager {
     private SessionFactory sessionFactory;
 
     public static void add(int chatId, String name, String text) {
