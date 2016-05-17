@@ -6,10 +6,11 @@
     <session-factory>
         <property name="connection.url">jdbc:mysql://localhost:3306/vex</property>
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
         <property name="hibernate.connection.useUnicode">true</property>
         <property name="hibernate.connection.characterEncoding">UTF-8</property>
         <property name="hibernate.connection.charSet">UTF-8</property>
-        <mapping class="vexybot.entity.Note"/>
         <mapping class="vexybot.entity.Note"/>
         <mapping class="vexybot.entity.Notification"/>
         <!-- DB schema will be updated if needed -->
