@@ -7,7 +7,6 @@ import javax.persistence.*;
 public class Note {
     private int id;
     private int chatId;
-    private String name;
     private String text;
 
     @Id
@@ -31,16 +30,6 @@ public class Note {
     }
 
     @Basic
-    @Column(name = "NAME", nullable = false, length = 45)
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Basic
     @Column(name = "TEXT", nullable = false, length = 45)
     public String getText() {
         return text;
@@ -59,7 +48,6 @@ public class Note {
 
         if (id != that.id) return false;
         if (chatId != that.chatId) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (text != null ? !text.equals(that.text) : that.text != null) return false;
 
         return true;
@@ -69,7 +57,6 @@ public class Note {
     public int hashCode() {
         int result = id;
         result = 31 * result + chatId;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
         return result;
     }

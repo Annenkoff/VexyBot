@@ -6,6 +6,9 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.dao.NotesManager;
+import vexybot.entity.Note;
+
+import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
@@ -30,31 +33,52 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingMessage(Message message) {
-        if (message.getText().contains("создать заметку") || message.getText().contains("создай заметку")) {
-            createNote(Integer.parseInt(String.valueOf(message.getChatId())), message.getText());
+        if (message.getText().toLowerCase().contains("/help")) {
             try {
                 sendMessage(new SendMessage()
-                        .setText("Заметка создана. Ты можешь посмотреть все заметки командой /notes")
-                        .setReplayToMessageId(message.getMessageId())
-                        .setChatId(String.valueOf(message.getChatId())));
+                        .setChatId(String.valueOf(message.getChatId()))
+                        .setText("Что я могу:\n" +
+                                "'создай заметку <текст заметки>' - создам заметку с вашим текстом и сохраню её у себя.\n" +
+                                "'все заметки' - предварительно покажу все ваши заметки."));
             } catch (TelegramApiException e) {
             }
+        } else if (message.getText().toLowerCase().contains("создать заметку ") || message.getText().toLowerCase().contains("создай заметку ")) {
+            createNote(Integer.parseInt(String.valueOf(message.getChatId())), message.getText());
+        } else if (message.getText().toLowerCase().contains("все заметки")) {
+            getAllNotes(Integer.parseInt(String.valueOf(message.getChatId())));
         }
     }
 
-    private void createNote(int id, String note) {
-        if (note.contains("\n")) {
-            String[] s = note.split("\n");
-            if (s.length > 2) {
-                String string = "";
-                for (int a = 2; a < s.length; a++) {
-                    string += s[a];
-                    string += "\n";
-                }
-                NotesManager.add(id, s[1], string);
-            }
-        } else {
+    private void createNote(int chatId, String note) {
+        if (note.indexOf("создать заметку ") == -1) {
+            NotesManager.add(chatId, note.substring(16));
+        } else if (note.indexOf("создай заметку ") == -1) {
+            NotesManager.add(chatId, note.substring(15));
+        }
+        try {
+            sendMessage(new SendMessage()
+                    .setText("Заметка создана. Ты можешь посмотреть все заметки, отправив 'все заметки'")
+                    .setChatId(String.valueOf(chatId)));
+        } catch (TelegramApiException e) {
+        }
+    }
 
+    private void getAllNotes(int chatId) {
+        List<Note> notes = NotesManager.getAll(chatId);
+        String mess = "";
+        int a = 1;
+        for (Note s : notes) {
+            mess += "#" + a + " - " + s.getText();
+            mess += "\n";
+            a++;
+        }
+        try {
+            if (notes.size() == 0 || notes.isEmpty()) {
+                sendMessage(new SendMessage().setChatId(String.valueOf(chatId)).setText("У вас нет заметок."));
+                return;
+            }
+            sendMessage(new SendMessage().setChatId(String.valueOf(chatId)).setText(mess));
+        } catch (TelegramApiException e) {
         }
     }
 }
