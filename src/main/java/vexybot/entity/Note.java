@@ -1,12 +1,14 @@
 package vexybot.entity;
 
 import javax.persistence.*;
+import java.sql.Date;
 
 @Entity
 @Table(name = "Notes", schema = "vex", catalog = "")
 public class Note {
     private int id;
     private int chatId;
+    private Date dateOfCreation;
     private String text;
 
     @Id
@@ -30,6 +32,16 @@ public class Note {
     }
 
     @Basic
+    @Column(name = "DATEOFCREATION", nullable = false)
+    public Date getDateOfCreation() {
+        return dateOfCreation;
+    }
+
+    public void setDateOfCreation(Date dateofcreation) {
+        this.dateOfCreation = dateofcreation;
+    }
+
+    @Basic
     @Column(name = "TEXT", nullable = false, length = 45)
     public String getText() {
         return text;
@@ -48,6 +60,8 @@ public class Note {
 
         if (id != that.id) return false;
         if (chatId != that.chatId) return false;
+        if (dateOfCreation != null ? !dateOfCreation.equals(that.dateOfCreation) : that.dateOfCreation != null)
+            return false;
         if (text != null ? !text.equals(that.text) : that.text != null) return false;
 
         return true;
@@ -57,6 +71,7 @@ public class Note {
     public int hashCode() {
         int result = id;
         result = 31 * result + chatId;
+        result = 31 * result + (dateOfCreation != null ? dateOfCreation.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
         return result;
     }

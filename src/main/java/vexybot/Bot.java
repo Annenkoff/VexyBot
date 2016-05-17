@@ -45,15 +45,15 @@ public class Bot extends TelegramLongPollingBot {
         } else if (message.getText().toLowerCase().contains("создать заметку ") || message.getText().toLowerCase().contains("создай заметку ")) {
             createNote(Integer.parseInt(String.valueOf(message.getChatId())), message.getText());
         } else if (message.getText().toLowerCase().contains("все заметки")) {
-            getAllNotes(Integer.parseInt(String.valueOf(message.getChatId())));
+            getNote(Integer.parseInt(String.valueOf(message.getChatId())));
         }
     }
 
     private void createNote(int chatId, String note) {
         if (note.indexOf("создать заметку ") == -1) {
-            NotesManager.add(chatId, note.substring(16));
+            NotesManager.addNote(chatId, note.substring(16));
         } else if (note.indexOf("создай заметку ") == -1) {
-            NotesManager.add(chatId, note.substring(15));
+            NotesManager.addNote(chatId, note.substring(15));
         }
         try {
             sendMessage(new SendMessage()
@@ -63,8 +63,8 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    private void getAllNotes(int chatId) {
-        List<Note> notes = NotesManager.getAll(chatId);
+    private List<Note> getAllNotes(int chatId) {
+        List<Note> notes = NotesManager.getAllNotes(chatId);
         String mess = "";
         int a = 1;
         for (Note s : notes) {
@@ -75,9 +75,29 @@ public class Bot extends TelegramLongPollingBot {
         try {
             if (notes.size() == 0 || notes.isEmpty()) {
                 sendMessage(new SendMessage().setChatId(String.valueOf(chatId)).setText("У вас нет заметок."));
-                return;
+                return null;
             }
             sendMessage(new SendMessage().setChatId(String.valueOf(chatId)).setText(mess));
+            return notes;
+        } catch (TelegramApiException e) {
+        }
+        return null;
+    }
+
+    private void getNote(int chatId) {
+        List<Note> notes = getAllNotes(chatId);
+        try {
+            sendMessage(new SendMessage()
+                    .setChatId(String.valueOf(chatId))
+                    .setText("Теперь введи номер заметки, которую ты хочешь посмотреть."));
+        } catch (TelegramApiException e) {
+        }
+        Message message = new Update().getMessage();
+        int i = Integer.parseInt(message.getText()) - 1;
+        try {
+            sendMessage(new SendMessage()
+                    .setChatId(String.valueOf(chatId))
+                    .setText(NotesManager.getNote(notes.get(i).getId()).getText()));
         } catch (TelegramApiException e) {
         }
     }

@@ -8,7 +8,7 @@ import vexybot.util.HibernateSessionFactory;
 import java.util.List;
 
 public class NotesManager {
-    public static void add(int chatId, String text) {
+    public static void addNote(int chatId, String text) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         try {
             session.beginTransaction();
@@ -21,7 +21,7 @@ public class NotesManager {
         }
     }
 
-    public static void delete(int id) {
+    public static void deleteNote(int id) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         try {
             session.beginTransaction();
@@ -33,10 +33,16 @@ public class NotesManager {
         }
     }
 
-    public static List<Note> getAll(int chatId) {
+    public static List<Note> getAllNotes(int chatId) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         Query query = session.createQuery("FROM Note where chatId=:chatId");
         query.setParameter("chatId", chatId);
         return query.list();
+    }
+
+    public static Note getNote(int id) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        Note note = (Note) session.get(Note.class, id);
+        return note;
     }
 }
