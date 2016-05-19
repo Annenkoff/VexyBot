@@ -5,6 +5,7 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import vexybot.dao.ChatsManager;
 import vexybot.dao.NotesManager;
 import vexybot.entity.Note;
 
@@ -33,13 +34,14 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingMessage(Message message) {
+        ChatsManager.checkChat(message);
         try {
             if (message.getText().equalsIgnoreCase("/help"))
                 sendHelpMessage(message);
             else if (message.getText().toLowerCase().contains("создать заметку ") || message.getText().toLowerCase().contains("создай заметку "))
                 createNote(Integer.parseInt(String.valueOf(message.getChatId())), message.getText());
             else if (message.getText().toLowerCase().contains("все заметки"))
-                getNote(Integer.parseInt(String.valueOf(message.getChatId())));
+                getAllNotes(message);
         } catch (TelegramApiException e) {
         }
     }
@@ -60,8 +62,8 @@ public class Bot extends TelegramLongPollingBot {
                 .setChatId(String.valueOf(chatId)));
     }
 
-    private List<Note> getAllNotes(int chatId) throws TelegramApiException {
-        List<Note> notes = NotesManager.getAllNotes(chatId);
+    private List<Note> getAllNotes(Message message) throws TelegramApiException {
+        List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String mess = "";
         int a = 1;
         for (Note s : notes) {
@@ -70,23 +72,20 @@ public class Bot extends TelegramLongPollingBot {
             a++;
         }
         if (notes.size() == 0 || notes.isEmpty()) {
-            sendMessage(new SendMessage().setChatId(String.valueOf(chatId)).setText("У вас нет заметок."));
-            return null;
+            sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText("У вас нет заметок."));
+        } else {
+            sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText(mess));
+            sendMessage(new SendMessage()
+                    .setChatId(String.valueOf(message.getChatId()))
+                    .setText("Введите номер заметки, которую вы хотите посмотреть.\n" +
+                            "Если вы хотите прекратить работу с заметками, введите /cancel"));
+            ChatsManager.setStatus(message, "CHOOSENOTE");
         }
-        sendMessage(new SendMessage().setChatId(String.valueOf(chatId)).setText(mess));
         return notes;
     }
 
     private void getNote(int chatId) throws TelegramApiException {
-        List<Note> notes = getAllNotes(chatId);
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(chatId))
-                .setText("Теперь введи номер заметки, которую ты хочешь посмотреть."));
-        Message message = new Update().getMessage();
-        int i = Integer.parseInt(message.getText()) - 1;
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(chatId))
-                .setText(NotesManager.getNote(notes.get(i).getId()).getText()));
+
     }
 
     private void sendHelpMessage(Message message) throws TelegramApiException {

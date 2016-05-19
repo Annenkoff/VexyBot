@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import vexybot.entity.Note;
 import vexybot.util.HibernateSessionFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class NotesManager {
@@ -15,9 +16,12 @@ public class NotesManager {
             Note note = new Note();
             note.setChatId(chatId);
             note.setText(text);
+            java.util.Date date = new java.util.Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            simpleDateFormat.format(date);
+            note.setDateOfCreation(new java.sql.Date(date.getTime()));
             session.save(note);
             session.getTransaction().commit();
-
         } catch (Exception e) {
         }
     }
