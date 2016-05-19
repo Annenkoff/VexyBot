@@ -20,7 +20,10 @@ public class Bot extends TelegramLongPollingBot {
                 sendMessage.setText(message.getText());
                 sendMessage.setChatId(String.valueOf(message.getChatId()));
                 sendMessage.enableMarkdown(true);
-                handleIncomingMessage(message);
+                try {
+                    handleIncomingMessage(message);
+                } catch (TelegramApiException e) {
+                }
             }
         }
     }
@@ -33,20 +36,25 @@ public class Bot extends TelegramLongPollingBot {
         return Config.TOKEN;
     }
 
-    private void handleIncomingMessage(Message message) {
+    private void handleIncomingMessage(Message message) throws TelegramApiException {
+        String text = message.getText().toLowerCase();
         ChatsManager.checkChat(message);
-        try {
-            if (message.getText().equalsIgnoreCase("/help"))
-                sendHelpMessage(message);
-            else if (message.getText().toLowerCase().contains("создать заметку ") || message.getText().toLowerCase().contains("создай заметку "))
-                createNote(Integer.parseInt(String.valueOf(message.getChatId())), message.getText());
-            else if (message.getText().toLowerCase().contains("все заметки"))
-                getAllNotes(message);
-        } catch (TelegramApiException e) {
-        }
+        String status = ChatsManager.getStatus(message);
+        if (text.equals("/cancel"))
+            onCancelOperation(message);
+        else if (status.equals("CHOOSENOTE")) {
+            getNote(Math.toIntExact(message.getChatId()));
+        } else if (text.equals("/help"))
+            sendHelpMessage(message);
+        else if (text.contains("создать заметку ") || text.contains("создай заметку "))
+            createNote(message);
+        else if (text.contains("все заметки"))
+            getAllNotes(message);
     }
 
-    private void createNote(int chatId, String note) throws TelegramApiException {
+    private void createNote(Message message) throws TelegramApiException {
+        String note = message.getText();
+        int chatId = Math.toIntExact(message.getChatId());
         if (note.indexOf("создать заметку ") == -1) {
             NotesManager.addNote(chatId, note.substring(16));
         } else if (note.indexOf("создай заметку ") == -1) {
@@ -94,5 +102,12 @@ public class Bot extends TelegramLongPollingBot {
                 .setText("Что я могу:\n" +
                         "'создай заметку <текст заметки>' - создам заметку с вашим текстом и сохраню её у себя.\n" +
                         "'все заметки' - предварительно покажу все ваши заметки."));
+    }
+
+    private void onCancelOperation(Message message) throws TelegramApiException {
+        ChatsManager.setStatus(message, "");
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText("Операция отменена."));
     }
 }

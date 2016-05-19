@@ -38,4 +38,11 @@ public class ChatsManager {
         session.save(newChat);
         session.getTransaction().commit();
     }
+
+    public static String getStatus(Message message) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        int chatId = Math.toIntExact(message.getChatId());
+        Chat chat = (Chat) session.get(Chat.class, chatId);
+        return chat.getStatus();
+    }
 }
