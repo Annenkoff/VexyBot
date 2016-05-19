@@ -43,13 +43,16 @@ public class Bot extends TelegramLongPollingBot {
         if (text.equals("/cancel"))
             onCancelOperation(message);
         else if (status.equals("CHOOSENOTE")) {
-            getNote(Math.toIntExact(message.getChatId()));
+            getNote(message);
         } else if (text.equals("/help"))
             sendHelpMessage(message);
         else if (text.contains("создать заметку ") || text.contains("создай заметку "))
             createNote(message);
         else if (text.contains("все заметки"))
             getAllNotes(message);
+        else {
+
+        }
     }
 
     private void createNote(Message message) throws TelegramApiException {
@@ -92,8 +95,21 @@ public class Bot extends TelegramLongPollingBot {
         return notes;
     }
 
-    private void getNote(int chatId) throws TelegramApiException {
-
+    private void getNote(Message message) throws TelegramApiException {
+        List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
+        String text = message.getText();
+        int number = Integer.parseInt(text) - 1;
+        if (number < 0 || number > notes.size() - 1) {
+            sendMessage(new SendMessage()
+                    .setChatId(String.valueOf(message.getChatId()))
+                    .setText("Нет заметки с таким номером."));
+            return;
+        }
+        Note note = notes.get(number);
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText("Заметка>> " + note.getText()));
+        ChatsManager.setStatus(message, "");
     }
 
     private void sendHelpMessage(Message message) throws TelegramApiException {
