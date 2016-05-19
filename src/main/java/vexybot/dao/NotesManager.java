@@ -17,6 +17,7 @@ public class NotesManager {
             note.setText(text);
             session.save(note);
             session.getTransaction().commit();
+
         } catch (Exception e) {
         }
     }
