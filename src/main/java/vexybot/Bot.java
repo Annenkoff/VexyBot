@@ -50,9 +50,8 @@ public class Bot extends TelegramLongPollingBot {
             createNote(message);
         else if (text.contains("все заметки"))
             getAllNotes(message);
-        else {
-
-        }
+        else
+            doNotUnderstandMessage(message);
     }
 
     private void createNote(Message message) throws TelegramApiException {
@@ -88,7 +87,7 @@ public class Bot extends TelegramLongPollingBot {
             sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText(mess));
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Введите номер заметки, которую вы хотите посмотреть.\n" +
+                    .setText("Введите номер заметки, которую вы хотите посмотреть полностью.\n" +
                             "Если вы хотите прекратить работу с заметками, введите /cancel"));
             ChatsManager.setStatus(message, "CHOOSENOTE");
         }
@@ -125,5 +124,11 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText("Операция отменена."));
+    }
+
+    private void doNotUnderstandMessage(Message message) throws TelegramApiException {
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText("Извини, но я тебя не понял. Введи /help , чтобы узнать о моих возможностях."));
     }
 }
