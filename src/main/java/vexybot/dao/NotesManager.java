@@ -28,14 +28,10 @@ public class NotesManager {
 
     public static void deleteNote(int id) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
-        try {
-            session.beginTransaction();
-            Note note = (Note) session.get(Note.class, id);
-            session.delete(note);
-            session.getTransaction().commit();
-        } catch (Exception e) {
-
-        }
+        session.beginTransaction();
+        Note note = (Note) session.get(Note.class, id);
+        session.delete(note);
+        session.getTransaction().commit();
     }
 
     public static List<Note> getAllNotes(int chatId) {
