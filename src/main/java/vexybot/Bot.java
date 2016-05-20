@@ -48,22 +48,27 @@ public class Bot extends TelegramLongPollingBot {
             deleteNote(message);
         } else if (text.equals("/help"))
             sendHelpMessage(message);
-        else if (text.contains("создать заметку ") || text.contains("создай заметку "))
+        else if (text.contains("создать заметку ") || text.contains("создай заметку ") || text.contains("добавь заметку ") || text.contains("добавить заметку "))
             createNote(message);
-        else if (text.contains("прочитать заметку") || text.contains("посмотреть заметку") || text.contains("удалить заметку"))
+        else if (text.contains("прочитать заметку")
+                || text.contains("посмотреть заметку")
+                || text.contains("удалить заметку")
+                || text.contains("удали заметку")
+                || text.contains("посмотреть заметки")
+                || text.contains("все заметки"))
             getAllNotes(message);
         else
             doNotUnderstandMessage(message);
     }
 
     private void createNote(Message message) throws TelegramApiException {
-        String note = message.getText().toLowerCase();
+        String note = message.getText();
         int chatId = Math.toIntExact(message.getChatId());
-        if (note.indexOf("создать заметку ") == 0) {
-            NotesManager.addNote(chatId, note.substring(16));
-        } else if (note.indexOf("создай заметку ") == 0) {
-            NotesManager.addNote(chatId, note.substring(15));
-        } else {
+        if (note.toLowerCase().indexOf("создать заметку ") == 0) NotesManager.addNote(chatId, note.substring(16));
+        else if (note.toLowerCase().indexOf("создай заметку ") == 0) NotesManager.addNote(chatId, note.substring(15));
+        else if (note.toLowerCase().indexOf("добавь заметку ") == 0) NotesManager.addNote(chatId, note.substring(15));
+        else if (note.toLowerCase().indexOf("добавить заметку ") == 0) NotesManager.addNote(chatId, note.substring(17));
+        else {
             sendMessage(new SendMessage()
                     .setText("Заметку создать не получилось.")
                     .setChatId(String.valueOf(chatId)));
@@ -79,21 +84,28 @@ public class Bot extends TelegramLongPollingBot {
         String mess = "";
         int a = 1;
         for (Note s : notes) {
-            mess += "#" + a + " - " + s.getText();
+            mess += "#" + a + " - " + s.getText().substring(0, 20);
+            if (s.getText().length() > 20) {
+                mess += " ...";
+            }
             mess += "\n";
             a++;
         }
         if (notes.size() == 0 || notes.isEmpty()) {
-            sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText("У вас нет заметок."));
+            sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText("У тебя нет заметок."));
         } else {
             sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText(mess));
-            if (message.getText().equalsIgnoreCase("прочитать заметку") || message.getText().equalsIgnoreCase("посмотреть заметку")) {
+            if (message.getText().equalsIgnoreCase("прочитать заметку")
+                    || message.getText().equalsIgnoreCase("посмотреть заметку")
+                    || message.getText().equalsIgnoreCase("посмотреть заметки")
+                    || message.getText().equalsIgnoreCase("все заметки")) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
                         .setText("Введи номер заметки, которую ты хочешь посмотреть полностью.\n" +
                                 "Если ты хочешь прекратить работу с заметками, введи /cancel"));
                 ChatsManager.setStatus(message, "CHOOSENOTE");
-            } else if (message.getText().equalsIgnoreCase("удалить заметку")) {
+            } else if (message.getText().equalsIgnoreCase("удалить заметку")
+                    || message.getText().equalsIgnoreCase("удали заметку")) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
                         .setText("Введи номер заметки, которую ты хочешь удалить.\n" +
@@ -107,11 +119,21 @@ public class Bot extends TelegramLongPollingBot {
     private void getNote(Message message) throws TelegramApiException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String text = message.getText();
-        int number = Integer.parseInt(text) - 1;
-        if (number < 0 || number > notes.size() - 1) {
+        int number;
+        try {
+            number = Integer.parseInt(text) - 1;
+        } catch (NumberFormatException e) {
+            try {
+                number = Integer.parseInt(text.substring(1)) - 1;
+            } catch (NumberFormatException e1) {
+                number = -1;
+            }
+        }
+        if (number == -1) {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Нет заметки с таким номером."));
+                    .setText("Введи номер заметки, которую ты хочешь посмотреть полностью.\n" +
+                            "Если ты хочешь прекратить работу с заметками, введи /cancel"));
             return;
         }
         Note note = notes.get(number);
@@ -146,11 +168,17 @@ public class Bot extends TelegramLongPollingBot {
     private void deleteNote(Message message) throws TelegramApiException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String text = message.getText();
-        int number = Integer.parseInt(text) - 1;
-        if (number < 0 || number > notes.size() - 1) {
+        int number;
+        try {
+            number = Integer.parseInt(text) - 1;
+        } catch (NumberFormatException e) {
+            number = -1;
+        }
+        if (number == -1) {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Нет заметки с таким номером."));
+                    .setText("Введи номер заметки, которую ты хочешь удалить.\n" +
+                            "Если ты хочешь прекратить работу с заметками, введи /cancel"));
             return;
         }
         Note note = notes.get(number);
