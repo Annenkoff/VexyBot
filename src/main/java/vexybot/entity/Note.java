@@ -42,7 +42,7 @@ public class Note {
     }
 
     @Basic
-    @Column(name = "TEXT", nullable = false, length = 45)
+    @Column(name = "TEXT", nullable = false, length = -1)
     public String getText() {
         return text;
     }

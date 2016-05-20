@@ -42,7 +42,7 @@ public class Notification {
     }
 
     @Basic
-    @Column(name = "DESCRIPTION", nullable = false, length = 45)
+    @Column(name = "DESCRIPTION", nullable = false, length = -1)
     public String getDescription() {
         return description;
     }

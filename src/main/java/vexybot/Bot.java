@@ -4,14 +4,47 @@ import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.dao.ChatsManager;
 import vexybot.dao.NotesManager;
 import vexybot.entity.Note;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class Bot extends TelegramLongPollingBot {
+    private String fileLocale;
+    private ResourceBundle resourceBundle;
+
+    private static ReplyKeyboardMarkup getLanguagesKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboad(false);
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        List<String> languages = new ArrayList<>();
+        languages.add("Русский");
+        languages.add("English");
+        for (String language : languages) {
+            KeyboardRow row = new KeyboardRow();
+            row.add(language);
+            keyboard.add(row);
+        }
+
+        KeyboardRow row = new KeyboardRow();
+        row.add("/cancel");
+        keyboard.add(row);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+
+        return replyKeyboardMarkup;
+    }
+
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
@@ -23,6 +56,7 @@ public class Bot extends TelegramLongPollingBot {
                 try {
                     handleIncomingMessage(message);
                 } catch (TelegramApiException e) {
+                } catch (UnsupportedEncodingException e) {
                 }
             }
         }
@@ -36,18 +70,24 @@ public class Bot extends TelegramLongPollingBot {
         return Config.TOKEN;
     }
 
-    private void handleIncomingMessage(Message message) throws TelegramApiException {
-        String text = message.getText().toLowerCase();
+    private void handleIncomingMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
         ChatsManager.checkChat(message);
+        fileLocale = ChatsManager.getLocale(message);
+        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + fileLocale);
+        String text = message.getText().toLowerCase();
         String status = ChatsManager.getStatus(message);
         if (text.equals("/cancel"))
-            onCancelOperation(message);
-        else if (status.equals("CHOOSENOTE")) {
+            onCancel(message);
+        else if (text.equals("/lang"))
+            changeLocale(message);
+        else if (status.equals("CHOOSENOTE"))
             getNote(message);
-        } else if (status.equals("CHOOSENOTEFORDEL")) {
+        else if (status.equals("CHOOSENOTEFORDEL"))
             deleteNote(message);
-        } else if (text.equals("/help"))
-            sendHelpMessage(message);
+        else if (status.equals("LANGUAGESELECTION"))
+            onSelectLocale(message);
+        else if (text.equals("/help"))
+            helpMessage(message);
         else if (text.contains("создать заметку ") || text.contains("создай заметку ") || text.contains("добавь заметку ") || text.contains("добавить заметку "))
             createNote(message);
         else if (text.contains("прочитать заметку")
@@ -61,7 +101,7 @@ public class Bot extends TelegramLongPollingBot {
             doNotUnderstandMessage(message);
     }
 
-    private void createNote(Message message) throws TelegramApiException {
+    private void createNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
         String note = message.getText();
         int chatId = Math.toIntExact(message.getChatId());
         if (note.toLowerCase().indexOf("создать заметку ") == 0) NotesManager.addNote(chatId, note.substring(16));
@@ -70,53 +110,57 @@ public class Bot extends TelegramLongPollingBot {
         else if (note.toLowerCase().indexOf("добавить заметку ") == 0) NotesManager.addNote(chatId, note.substring(17));
         else {
             sendMessage(new SendMessage()
-                    .setText("Заметку создать не получилось.")
+                    .setText(new String(resourceBundle.getString("after.create.note.lose").getBytes("ISO-8859-1"), "UTF-8"))
                     .setChatId(String.valueOf(chatId)));
             return;
         }
         sendMessage(new SendMessage()
-                .setText("Заметка создана. Ты можешь посмотреть все заметки, отправив 'посмотреть заметку'")
+                .setText(new String(resourceBundle.getString("after.create.note").getBytes("ISO-8859-1"), "UTF-8"))
                 .setChatId(String.valueOf(chatId)));
     }
 
-    private List<Note> getAllNotes(Message message) throws TelegramApiException {
+    private List<Note> getAllNotes(Message message) throws TelegramApiException, UnsupportedEncodingException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String mess = "";
         int a = 1;
         for (Note s : notes) {
-            mess += "#" + a + " - " + s.getText().substring(0, 20);
             if (s.getText().length() > 20) {
+                mess += "#" + a + " - " + s.getText().substring(0, 20);
                 mess += " ...";
+            } else {
+                mess += "#" + a + " - " + s.getText();
             }
             mess += "\n";
             a++;
         }
-        if (notes.size() == 0 || notes.isEmpty()) {
-            sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText("У тебя нет заметок."));
-        } else {
-            sendMessage(new SendMessage().setChatId(String.valueOf(message.getChatId())).setText(mess));
+        if (notes.size() == 0 || notes.isEmpty())
+            sendMessage(new SendMessage()
+                    .setChatId(String.valueOf(message.getChatId()))
+                    .setText(new String(resourceBundle.getString("no.notes").getBytes("ISO-8859-1"), "UTF-8")));
+        else {
+            sendMessage(new SendMessage()
+                    .setChatId(String.valueOf(message.getChatId()))
+                    .setText(mess));
             if (message.getText().equalsIgnoreCase("прочитать заметку")
                     || message.getText().equalsIgnoreCase("посмотреть заметку")
                     || message.getText().equalsIgnoreCase("посмотреть заметки")
                     || message.getText().equalsIgnoreCase("все заметки")) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
-                        .setText("Введи номер заметки, которую ты хочешь посмотреть полностью.\n" +
-                                "Если ты хочешь прекратить работу с заметками, введи /cancel"));
+                        .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
                 ChatsManager.setStatus(message, "CHOOSENOTE");
             } else if (message.getText().equalsIgnoreCase("удалить заметку")
                     || message.getText().equalsIgnoreCase("удали заметку")) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
-                        .setText("Введи номер заметки, которую ты хочешь удалить.\n" +
-                                "Если ты хочешь прекратить работу с заметками, введи /cancel"));
+                        .setText(new String(resourceBundle.getString("info.about.delete.note").getBytes("ISO-8859-1"), "UTF-8")));
                 ChatsManager.setStatus(message, "CHOOSENOTEFORDEL");
             }
         }
         return notes;
     }
 
-    private void getNote(Message message) throws TelegramApiException {
+    private void getNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String text = message.getText();
         int number;
@@ -132,8 +176,7 @@ public class Bot extends TelegramLongPollingBot {
         if (number == -1) {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Введи номер заметки, которую ты хочешь посмотреть полностью.\n" +
-                            "Если ты хочешь прекратить работу с заметками, введи /cancel"));
+                    .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
             return;
         }
         Note note = notes.get(number);
@@ -143,29 +186,27 @@ public class Bot extends TelegramLongPollingBot {
         ChatsManager.setStatus(message, "");
     }
 
-    private void sendHelpMessage(Message message) throws TelegramApiException {
+    private void helpMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText("Что я могу:\n" +
-                        "'создай заметку <текст заметки>' - создам заметку с вашим текстом и сохраню её у себя.\n" +
-                        "'посмотреть заметку' - покажу полностью выбранную заметку.\n" +
-                        "'удалить заметку' - удалю выбранную заметку."));
+                .setText(new String(resourceBundle.getString("help").getBytes("ISO-8859-1"), "UTF-8")));
     }
 
-    private void onCancelOperation(Message message) throws TelegramApiException {
+    private void onCancel(Message message) throws TelegramApiException, UnsupportedEncodingException {
         ChatsManager.setStatus(message, "");
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText("Ок."));
+                .setText(new String(resourceBundle.getString("well").getBytes("ISO-8859-1"), "UTF-8"))
+                .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
     }
 
-    private void doNotUnderstandMessage(Message message) throws TelegramApiException {
+    private void doNotUnderstandMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText("Извини, но я тебя не понял. Введи /help , чтобы узнать о моих возможностях."));
+                .setText(new String(resourceBundle.getString("misunderstanding").getBytes("ISO-8859-1"), "UTF-8")));
     }
 
-    private void deleteNote(Message message) throws TelegramApiException {
+    private void deleteNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String text = message.getText();
         int number;
@@ -177,15 +218,34 @@ public class Bot extends TelegramLongPollingBot {
         if (number == -1) {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Введи номер заметки, которую ты хочешь удалить.\n" +
-                            "Если ты хочешь прекратить работу с заметками, введи /cancel"));
+                    .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
             return;
         }
         Note note = notes.get(number);
         NotesManager.deleteNote(note.getId());
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText("Заметка удалена."));
+                .setText(new String(resourceBundle.getString("after.delete.note").getBytes("ISO-8859-1"), "UTF-8")));
         ChatsManager.setStatus(message, "");
+    }
+
+    private void changeLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(new String(resourceBundle.getString("select.language").getBytes("ISO-8859-1"), "UTF-8"))
+                .setReplayMarkup(getLanguagesKeyboard()));
+        ChatsManager.setStatus(message, "LANGUAGESELECTION");
+    }
+
+    private void onSelectLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
+        if (message.getText().equalsIgnoreCase("Русский"))
+            ChatsManager.setLocale(message, "ru");
+        else if (message.getText().equalsIgnoreCase("English"))
+            ChatsManager.setLocale(message, "en");
+        ChatsManager.setStatus(message, "");
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(new String(resourceBundle.getString("after.select.language").getBytes("ISO-8859-1"), "UTF-8"))
+                .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
     }
 }

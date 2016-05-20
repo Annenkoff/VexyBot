@@ -13,15 +13,16 @@ public class ChatsManager {
         Query query = session.createQuery("FROM Chat WHERE id=:chatId");
         query.setParameter("chatId", chatId);
         if (query.list().size() == 0 || query.list().isEmpty())
-            addNote(message);
+            addChat(message);
     }
 
-    public static void addNote(Message message) {
+    public static void addChat(Message message) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         session.beginTransaction();
         Chat chat = new Chat();
         chat.setId(Math.toIntExact(message.getChatId()));
         chat.setStatus("");
+        chat.setLocale("en");
         session.save(chat);
         session.getTransaction().commit();
     }
@@ -34,6 +35,7 @@ public class ChatsManager {
         Chat newChat = new Chat();
         newChat.setId(chatId);
         newChat.setStatus(status);
+        newChat.setLocale(chat.getLocale());
         session.delete(chat);
         session.save(newChat);
         session.getTransaction().commit();
@@ -44,5 +46,26 @@ public class ChatsManager {
         int chatId = Math.toIntExact(message.getChatId());
         Chat chat = (Chat) session.get(Chat.class, chatId);
         return chat.getStatus();
+    }
+
+    public static String getLocale(Message message) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        int chatId = Math.toIntExact(message.getChatId());
+        Chat chat = (Chat) session.get(Chat.class, chatId);
+        return chat.getLocale();
+    }
+
+    public static void setLocale(Message message, String locale) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        int chatId = Math.toIntExact(message.getChatId());
+        session.beginTransaction();
+        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat newChat = new Chat();
+        newChat.setId(chatId);
+        newChat.setStatus(chat.getStatus());
+        newChat.setLocale(locale);
+        session.delete(chat);
+        session.save(newChat);
+        session.getTransaction().commit();
     }
 }
