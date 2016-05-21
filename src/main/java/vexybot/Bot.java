@@ -11,6 +11,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.dao.ChatsManager;
 import vexybot.dao.NotesManager;
 import vexybot.entity.Note;
+import vexybot.services.Emoji;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -134,6 +135,7 @@ public class Bot extends TelegramLongPollingBot {
     private List<Note> getAllNotes(Message message) throws TelegramApiException, UnsupportedEncodingException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String mess = "";
+        mess += Emoji.PENCIL.toString() + new String(resourceBundle.getString("your.notes").getBytes("ISO-8859-1"), "UTF-8") + "\n";
         int a = 1;
         for (Note s : notes) {
             if (s.getText().length() > 20) {
