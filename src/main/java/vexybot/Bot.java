@@ -8,6 +8,8 @@ import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import vexybot.aggregator.model.GoogleStrategy;
+import vexybot.aggregator.model.WikipediaStrategy;
 import vexybot.dao.ChatsManager;
 import vexybot.dao.NotesManager;
 import vexybot.entity.Note;
@@ -77,7 +79,9 @@ public class Bot extends TelegramLongPollingBot {
         resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + fileLocale);
         String text = message.getText().toLowerCase();
         String status = ChatsManager.getStatus(message);
-        if (text.equals("/cancel"))
+        if (text.equals("/start"))
+            start(message);
+        else if (text.equals("/cancel"))
             onCancel(message);
         else if (text.equals("/lang"))
             changeLocale(message);
@@ -101,6 +105,11 @@ public class Bot extends TelegramLongPollingBot {
                 || text.contains(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8"))
                 || text.contains(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8")))
             getAllNotes(message);
+        else if (text.toLowerCase().contains(new String(resourceBundle.getString("who.is.he").getBytes("ISO-8859-1"), "UTF-8") + " ")
+                || text.toLowerCase().contains(new String(resourceBundle.getString("who.is.she").getBytes("ISO-8859-1"), "UTF-8") + " ")
+                || text.toLowerCase().contains(new String(resourceBundle.getString("who.are").getBytes("ISO-8859-1"), "UTF-8") + " ")
+                || text.toLowerCase().contains(new String(resourceBundle.getString("what.is").getBytes("ISO-8859-1"), "UTF-8") + " "))
+            searchGoogle(message);
         else
             doNotUnderstandMessage(message);
     }
@@ -261,5 +270,22 @@ public class Bot extends TelegramLongPollingBot {
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(new String(resourceBundle.getString("after.select.language").getBytes("ISO-8859-1"), "UTF-8"))
                 .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
+    }
+
+    private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
+        sendMessage(new SendMessage().setChatId(String.valueOf(message
+                .getChatId()))
+                .setText(new String(resourceBundle.getString("start").getBytes("ISO-8859-1"), "UTF-8")));
+    }
+
+    private void searchWikipedia(Message message) {
+        String s = new WikipediaStrategy().getInfo(message.getText().substring(10));
+    }
+
+    private void searchGoogle(Message message) throws TelegramApiException {
+        String s = new GoogleStrategy().getInfo(message.getText());
+        sendMessage(new SendMessage().setChatId(String.valueOf(message
+                .getChatId()))
+                .setText(s));
     }
 }
