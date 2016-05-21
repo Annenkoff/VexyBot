@@ -88,14 +88,17 @@ public class Bot extends TelegramLongPollingBot {
             onSelectLocale(message);
         else if (text.equals("/help"))
             helpMessage(message);
-        else if (text.contains("создать заметку ") || text.contains("создай заметку ") || text.contains("добавь заметку ") || text.contains("добавить заметку "))
+        else if (text.contains(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " ")
+                || text.contains(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " ")
+                || text.contains(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " ")
+                || text.contains(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
             createNote(message);
-        else if (text.contains("прочитать заметку")
-                || text.contains("посмотреть заметку")
-                || text.contains("удалить заметку")
-                || text.contains("удали заметку")
-                || text.contains("посмотреть заметки")
-                || text.contains("все заметки"))
+        else if (text.contains(new String(resourceBundle.getString("to.read.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                || text.contains(new String(resourceBundle.getString("to.view.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                || text.contains(new String(resourceBundle.getString("to.delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                || text.contains(new String(resourceBundle.getString("delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                || text.contains(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8"))
+                || text.contains(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8")))
             getAllNotes(message);
         else
             doNotUnderstandMessage(message);
@@ -104,15 +107,24 @@ public class Bot extends TelegramLongPollingBot {
     private void createNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
         String note = message.getText();
         int chatId = Math.toIntExact(message.getChatId());
-        if (note.toLowerCase().indexOf("создать заметку ") == 0) NotesManager.addNote(chatId, note.substring(16));
-        else if (note.toLowerCase().indexOf("создай заметку ") == 0) NotesManager.addNote(chatId, note.substring(15));
-        else if (note.toLowerCase().indexOf("добавь заметку ") == 0) NotesManager.addNote(chatId, note.substring(15));
-        else if (note.toLowerCase().indexOf("добавить заметку ") == 0) NotesManager.addNote(chatId, note.substring(17));
-        else {
-            sendMessage(new SendMessage()
-                    .setText(new String(resourceBundle.getString("after.create.note.lose").getBytes("ISO-8859-1"), "UTF-8"))
-                    .setChatId(String.valueOf(chatId)));
-            return;
+        if (ChatsManager.getLocale(message).equals("ru")) {
+            if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(16));
+            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(15));
+            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(15));
+            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(17));
+        } else if (ChatsManager.getLocale(message).equals("en")) {
+            if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(16));
+            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(16));
+            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(13));
+            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+                NotesManager.addNote(chatId, note.substring(13));
         }
         sendMessage(new SendMessage()
                 .setText(new String(resourceBundle.getString("after.create.note").getBytes("ISO-8859-1"), "UTF-8"))
@@ -141,16 +153,16 @@ public class Bot extends TelegramLongPollingBot {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
                     .setText(mess));
-            if (message.getText().equalsIgnoreCase("прочитать заметку")
-                    || message.getText().equalsIgnoreCase("посмотреть заметку")
-                    || message.getText().equalsIgnoreCase("посмотреть заметки")
-                    || message.getText().equalsIgnoreCase("все заметки")) {
+            if (message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.read.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.view.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8"))
+                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8"))) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
                         .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
                 ChatsManager.setStatus(message, "CHOOSENOTE");
-            } else if (message.getText().equalsIgnoreCase("удалить заметку")
-                    || message.getText().equalsIgnoreCase("удали заметку")) {
+            } else if (message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))
+                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
                         .setText(new String(resourceBundle.getString("info.about.delete.note").getBytes("ISO-8859-1"), "UTF-8")));
@@ -182,7 +194,7 @@ public class Bot extends TelegramLongPollingBot {
         Note note = notes.get(number);
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText("Заметка>> " + note.getText()));
+                .setText(new String(resourceBundle.getString("note").getBytes("ISO-8859-1"), "UTF-8") + note.getText()));
         ChatsManager.setStatus(message, "");
     }
 
