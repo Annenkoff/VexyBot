@@ -298,6 +298,8 @@ public class Bot extends TelegramLongPollingBot {
 
     private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
         onSelectLocale(message);
+        fileLocale = ChatsManager.getLocale(message);
+        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + fileLocale);
         sendMessage(new SendMessage().setChatId(String.valueOf(message
                 .getChatId()))
                 .setText(new String(resourceBundle.getString("start").getBytes("ISO-8859-1"), "UTF-8")));
