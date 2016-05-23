@@ -16,6 +16,7 @@ import vexybot.dao.NotificationsManager;
 import vexybot.entity.Note;
 import vexybot.services.Emoji;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -307,7 +308,7 @@ public class Bot extends TelegramLongPollingBot {
         String s = new WikipediaStrategy().getInfo(message.getText().substring(10));
     }
 
-    private void searchGoogle(Message message) throws TelegramApiException {
+    private void searchGoogle(Message message) throws TelegramApiException, IOException {
         String s = new GoogleStrategy().getInfo(message.getText());
         sendMessage(new SendMessage().setChatId(String.valueOf(message
                 .getChatId()))

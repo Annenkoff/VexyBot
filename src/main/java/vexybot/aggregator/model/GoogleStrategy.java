@@ -9,39 +9,58 @@ import java.io.IOException;
 import java.net.URLEncoder;
 
 public class GoogleStrategy implements Strategy {
-    private static final String URL_FORMAT = "https://www.google.ru/search?q=%s";
+    private static final String URL_FORMAT = "https://www.google.com/search?q=%s";
 
     @Override
-    public String getInfo(String searchString) {
+    public String getInfo(String searchString) throws IOException {
         String info = "";
-        Document document;
+        Document document = getDocument(searchString);
+        Elements elementsByAttributeValue;
         try {
-            document = getDocument(searchString);
-            Elements elementsByAttributeValue;
-            if (searchString.toLowerCase().contains("что такое ")) {
-                elementsByAttributeValue = document.getElementsByAttributeValue("data-dobid", "dfn");
-                if (!elementsByAttributeValue.isEmpty()) {
-                    int i = 1;
-                    for (Element element : elementsByAttributeValue) {
-                        info += i + ". " + element.text() + "\n";
-                        i++;
-                    }
-                } else
-                    info = "Не знаю.";
-            } else if (searchString.toLowerCase().contains("кто такой ")
-                    || searchString.toLowerCase().contains("кто такая ")
-                    || searchString.toLowerCase().contains("кто такие ")) {
-                elementsByAttributeValue = document.getElementsByAttributeValue("data-dobid", "wd-dfn");
-                if (!elementsByAttributeValue.isEmpty() || elementsByAttributeValue.size() != 0) {
-                    info = elementsByAttributeValue.get(0).text();
-                    Elements elementsByClass = document.getElementsByAttributeValue("data-dobid", "wd-src");
-                    info += "\n" + elementsByClass.get(0).attr("href");
-                } else
-                    info = "Не знаю.";
+            elementsByAttributeValue = document.getElementsByClass("_cgc").first().getElementsByTag("span");
+            if (!elementsByAttributeValue.isEmpty() || elementsByAttributeValue.size() != 0) {
+                Elements site = document.getElementsByClass("_cgc").first().getElementsByTag("a");
+                info += elementsByAttributeValue.get(0).text();
+                info += "\n" + site.get(0).attr("href");
+                return info;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
         }
-        return info;
+        try {
+            elementsByAttributeValue = document.getElementsByAttributeValue("data-dobid", "wd-dfn");
+            if (!elementsByAttributeValue.isEmpty() || elementsByAttributeValue.size() != 0) {
+                info += elementsByAttributeValue.get(0).text();
+                Elements elementsByClass = document.getElementsByAttributeValue("data-dobid", "wd-src");
+                info += "\n" + elementsByClass.get(0).attr("href");
+                return info;
+            }
+        } catch (Exception e) {
+        }
+        try {
+            elementsByAttributeValue = document.getElementsByClass("_oDd").first().getElementsByTag("span");
+            if (!elementsByAttributeValue.isEmpty() || elementsByAttributeValue.size() != 0) {
+                Elements site = document
+                        .getElementsByClass("rc")
+                        .first().getElementsByClass("r").first().getElementsByTag("a");
+                info += elementsByAttributeValue.get(0).text();
+                info += "\n" + site.get(0).attr("href");
+                return info;
+            }
+        } catch (Exception e) {
+        }
+        try {
+            elementsByAttributeValue = document.getElementsByAttributeValue("data-dobid", "dfn");
+            if (!elementsByAttributeValue.isEmpty() || elementsByAttributeValue.size() != 0) {
+                int i = 1;
+                for (Element element : elementsByAttributeValue) {
+                    info += i + ". " + element.text() + "\n";
+                    i++;
+                }
+                return info;
+            }
+        } catch (Exception e) {
+        }
+        return "Не знаю.";
     }
 
     protected Document getDocument(String searchString) throws IOException {
