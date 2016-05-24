@@ -9,7 +9,6 @@ import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.aggregator.model.GoogleStrategy;
-import vexybot.aggregator.model.WikipediaStrategy;
 import vexybot.dao.ChatsManager;
 import vexybot.dao.NotesManager;
 import vexybot.dao.NotificationsManager;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class Bot extends TelegramLongPollingBot {
-    private String fileLocale;
     private ResourceBundle resourceBundle;
 
     private static ReplyKeyboardMarkup getLanguagesKeyboard() {
@@ -82,8 +80,7 @@ public class Bot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) throws Exception {
         ChatsManager.checkChat(message);
-        fileLocale = ChatsManager.getLocale(message);
-        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + fileLocale);
+        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
         String text = message.getText().toLowerCase();
         String status = ChatsManager.getStatus(message);
         if (text.equals("/start"))
@@ -102,22 +99,11 @@ public class Bot extends TelegramLongPollingBot {
             onSelectLocale(message);
         else if (text.equals("/help"))
             helpMessage(message);
-        else if (text.contains(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " ")
-                || text.contains(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " ")
-                || text.contains(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " ")
-                || text.contains(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
+        else if (isCreateNoteSigns(message))
             createNote(message);
-        else if (text.contains(new String(resourceBundle.getString("to.read.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                || text.contains(new String(resourceBundle.getString("to.view.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                || text.contains(new String(resourceBundle.getString("to.delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                || text.contains(new String(resourceBundle.getString("delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                || text.contains(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8"))
-                || text.contains(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8")))
+        else if (isGetAllNotesSigns(message))
             getAllNotes(message);
-        else if (text.substring(0, 11).toLowerCase().contains(new String(resourceBundle.getString("who.is.he").getBytes("ISO-8859-1"), "UTF-8") + " ")
-                || text.substring(0, 11).toLowerCase().contains(new String(resourceBundle.getString("who.is.she").getBytes("ISO-8859-1"), "UTF-8") + " ")
-                || text.substring(0, 11).toLowerCase().contains(new String(resourceBundle.getString("who.are").getBytes("ISO-8859-1"), "UTF-8") + " ")
-                || text.substring(0, 11).toLowerCase().contains(new String(resourceBundle.getString("what.is").getBytes("ISO-8859-1"), "UTF-8") + " "))
+        else if (isContainsGoogleSigns(message))
             searchGoogle(message);
         else if (text.substring(0, 9).toLowerCase().contains("напомни "))
             addNotification(message);
@@ -201,11 +187,7 @@ public class Bot extends TelegramLongPollingBot {
         try {
             number = Integer.parseInt(text) - 1;
         } catch (NumberFormatException e) {
-            try {
-                number = Integer.parseInt(text.substring(1)) - 1;
-            } catch (NumberFormatException e1) {
-                number = -1;
-            }
+            number = -1;
         }
         if (number == -1) {
             sendMessage(new SendMessage()
@@ -272,19 +254,15 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void onSelectLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
-        if (message.getText().equalsIgnoreCase("Русский")) {
+        if (message.getText().equalsIgnoreCase("Русский"))
             ChatsManager.setLocale(message, "ru");
-            sendMessage(new SendMessage()
-                    .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Хорошо, буду отвечать на русском.")
-                    .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
-        } else if (message.getText().equalsIgnoreCase("English")) {
+        else if (message.getText().equalsIgnoreCase("English"))
             ChatsManager.setLocale(message, "en");
-            sendMessage(new SendMessage()
-                    .setChatId(String.valueOf(message.getChatId()))
-                    .setText("Well. I speak English.")
-                    .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
-        }
+        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(new String(resourceBundle.getString("after.select.language").getBytes("ISO-8859-1"), "UTF-8"))
+                .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
         ChatsManager.setStatus(message, "");
     }
 
@@ -298,16 +276,11 @@ public class Bot extends TelegramLongPollingBot {
 
     private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
         onSelectLocale(message);
-        fileLocale = ChatsManager.getLocale(message);
-        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + fileLocale);
+        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
         sendMessage(new SendMessage().setChatId(String.valueOf(message
                 .getChatId()))
                 .setText(new String(resourceBundle.getString("start").getBytes("ISO-8859-1"), "UTF-8")));
         ChatsManager.setStatus(message, "");
-    }
-
-    private void searchWikipedia(Message message) {
-        String s = new WikipediaStrategy().getInfo(message.getText().substring(10));
     }
 
     private void searchGoogle(Message message) throws TelegramApiException, IOException {
@@ -322,5 +295,105 @@ public class Bot extends TelegramLongPollingBot {
         String text = NotificationsManager.getString(message);
         int chatId = Math.toIntExact(message.getChatId());
         NotificationsManager.addNote(chatId, text, date);
+    }
+
+    private boolean isContainsGoogleSigns(Message message) throws UnsupportedEncodingException {
+        String text = message.getText();
+        String locale = ChatsManager.getLocale(message);
+        if (locale.equalsIgnoreCase("ru")) {
+            try {
+                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.is.he").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.is.she").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.are").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("what.is").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+        } else if (locale.equalsIgnoreCase("en")) {
+
+        }
+        return false;
+    }
+
+    private boolean isCreateNoteSigns(Message message) throws UnsupportedEncodingException {
+        String text = message.getText();
+        String locale = ChatsManager.getLocale(message);
+        if (locale.equalsIgnoreCase("ru")) {
+            try {
+                if (text.substring(0, 15).equalsIgnoreCase(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 16).equalsIgnoreCase(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 15).equalsIgnoreCase(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 17).equalsIgnoreCase(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+        } else if (locale.equalsIgnoreCase("en")) {
+
+        }
+        return false;
+    }
+
+    private boolean isGetAllNotesSigns(Message message) throws UnsupportedEncodingException {
+        String text = message.getText();
+        String locale = ChatsManager.getLocale(message);
+        if (locale.equalsIgnoreCase("ru")) {
+            try {
+                if (text.substring(0, 17).equalsIgnoreCase(new String(resourceBundle.getString("to.read.the.note").getBytes("ISO-8859-1"), "UTF-8")))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 18).equalsIgnoreCase(new String(resourceBundle.getString("to.view.the.note").getBytes("ISO-8859-1"), "UTF-8")))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 15).equalsIgnoreCase(new String(resourceBundle.getString("to.delete.the.note").getBytes("ISO-8859-1"), "UTF-8")))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 13).equalsIgnoreCase(new String(resourceBundle.getString("delete.the.note").getBytes("ISO-8859-1"), "UTF-8")))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 18).equalsIgnoreCase(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8")))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (text.substring(0, 11).equalsIgnoreCase(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8")))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+        } else if (locale.equalsIgnoreCase("en")) {
+
+        }
+        return false;
     }
 }
