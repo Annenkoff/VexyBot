@@ -205,6 +205,7 @@ public class Bot extends TelegramLongPollingBot {
     private void helpMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
+                .enableHtml(true)
                 .setText(new String(resourceBundle.getString("help").getBytes("ISO-8859-1"), "UTF-8")));
     }
 
@@ -300,6 +301,7 @@ public class Bot extends TelegramLongPollingBot {
     private boolean isContainsGoogleSigns(Message message) throws UnsupportedEncodingException {
         String text = message.getText();
         String locale = ChatsManager.getLocale(message);
+        String reverce = String.valueOf(new StringBuilder(text).reverse());
         if (locale.equalsIgnoreCase("ru")) {
             try {
                 if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.is.he").getBytes("ISO-8859-1"), "UTF-8") + " "))
@@ -318,6 +320,11 @@ public class Bot extends TelegramLongPollingBot {
             }
             try {
                 if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("what.is").getBytes("ISO-8859-1"), "UTF-8") + " "))
+                    return true;
+            } catch (StringIndexOutOfBoundsException e) {
+            }
+            try {
+                if (reverce.substring(0, 4).equalsIgnoreCase("отэ "))
                     return true;
             } catch (StringIndexOutOfBoundsException e) {
             }
