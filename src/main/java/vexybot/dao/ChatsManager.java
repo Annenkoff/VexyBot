@@ -36,6 +36,9 @@ public class ChatsManager {
         newChat.setId(chatId);
         newChat.setStatus(status);
         newChat.setLocale(chat.getLocale());
+        newChat.setLocation(chat.getLocation());
+        newChat.setMorningNotification(chat.getMorningNotification());
+        newChat.setEveningNotification(chat.getEveningNotification());
         session.delete(chat);
         session.save(newChat);
         session.getTransaction().commit();
@@ -64,6 +67,43 @@ public class ChatsManager {
         newChat.setId(chatId);
         newChat.setStatus(chat.getStatus());
         newChat.setLocale(locale);
+        newChat.setLocation(chat.getLocation());
+        newChat.setMorningNotification(chat.getMorningNotification());
+        newChat.setEveningNotification(chat.getEveningNotification());
+        session.delete(chat);
+        session.save(newChat);
+        session.getTransaction().commit();
+    }
+
+    public static void setLocation(Message message, String location) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        int chatId = Math.toIntExact(message.getChatId());
+        session.beginTransaction();
+        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat newChat = new Chat();
+        newChat.setId(chatId);
+        newChat.setStatus(chat.getStatus());
+        newChat.setLocale(chat.getLocale());
+        newChat.setLocation(location);
+        newChat.setMorningNotification(chat.getMorningNotification());
+        newChat.setEveningNotification(chat.getEveningNotification());
+        session.delete(chat);
+        session.save(newChat);
+        session.getTransaction().commit();
+    }
+
+    public static void removeStatus(Message message) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        int chatId = Math.toIntExact(message.getChatId());
+        session.beginTransaction();
+        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat newChat = new Chat();
+        newChat.setId(chatId);
+        newChat.setStatus("");
+        newChat.setLocale(chat.getLocale());
+        newChat.setLocation(chat.getLocation());
+        newChat.setMorningNotification(chat.getMorningNotification());
+        newChat.setEveningNotification(chat.getEveningNotification());
         session.delete(chat);
         session.save(newChat);
         session.getTransaction().commit();

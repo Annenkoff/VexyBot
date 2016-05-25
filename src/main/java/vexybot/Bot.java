@@ -5,66 +5,35 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.aggregator.model.GoogleStrategy;
 import vexybot.dao.ChatsManager;
 import vexybot.dao.NotesManager;
 import vexybot.dao.NotificationsManager;
 import vexybot.entity.Note;
-import vexybot.services.Emoji;
+import vexybot.services.*;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 public class Bot extends TelegramLongPollingBot {
-    private ResourceBundle resourceBundle;
-
-    private static ReplyKeyboardMarkup getLanguagesKeyboard() {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboad(false);
-
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        List<String> languages = new ArrayList<>();
-        languages.add("Русский");
-        languages.add("English");
-        for (String language : languages) {
-            KeyboardRow row = new KeyboardRow();
-            row.add(language);
-            keyboard.add(row);
-        }
-
-        KeyboardRow row = new KeyboardRow();
-        row.add("/cancel");
-        keyboard.add(row);
-        replyKeyboardMarkup.setKeyboard(keyboard);
-
-        return replyKeyboardMarkup;
-    }
-
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
-            if (message.hasText()) {
-                SendMessage sendMessage = new SendMessage();
-                sendMessage.setText(message.getText());
-                sendMessage.setChatId(String.valueOf(message.getChatId()));
-                sendMessage.enableMarkdown(true);
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText(message.getText());
+            sendMessage.setChatId(String.valueOf(message.getChatId()));
+            sendMessage.enableMarkdown(true);
+            try {
+                handleIncomingMessage(message);
+            } catch (Exception e) {
                 try {
-                    handleIncomingMessage(message);
-                } catch (Exception e) {
-                    try {
-                        doNotUnderstandMessage(message);
-                    } catch (TelegramApiException e1) {
-                    } catch (UnsupportedEncodingException e1) {
-                    }
+                    doNotUnderstandMessage(message);
+                } catch (TelegramApiException e1) {
+                } catch (UnsupportedEncodingException e1) {
                 }
             }
         }
@@ -80,8 +49,11 @@ public class Bot extends TelegramLongPollingBot {
 
     private void handleIncomingMessage(Message message) throws Exception {
         ChatsManager.checkChat(message);
-        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
-        String text = message.getText().toLowerCase();
+        String text = "";
+        try {
+            text = message.getText().toLowerCase();
+        } catch (Exception e) {
+        }
         String status = ChatsManager.getStatus(message);
         if (text.equals("/start"))
             startSelectLocale(message);
@@ -89,24 +61,28 @@ public class Bot extends TelegramLongPollingBot {
             onCancel(message);
         else if (text.equals("/lang"))
             changeLocale(message);
-        else if (status.equals(Status.START.toString()))
-            start(message);
-        else if (status.equals(Status.CHOOSENOTE.toString()))
-            getNote(message);
-        else if (status.equals(Status.CHOOSENOTEFORDEL.toString()))
-            deleteNote(message);
-        else if (status.equals(Status.LANGUAGESELECTION.toString()))
-            onSelectLocale(message);
         else if (text.equals("/help"))
             helpMessage(message);
-        else if (isCreateNoteSigns(message))
+        else if (status.equals(Status.START.toString()))
+            start(message);
+        else if (status.equals(Status.CHOOSE_NOTE.toString()))
+            getNote(message);
+        else if (status.equals(Status.CHOOSE_NOTE_FOR_DELETE.toString()))
+            deleteNote(message);
+        else if (status.equals(Status.LANGUAGE_SELECTION.toString()))
+            onSelectLocale(message);
+        else if (status.equals(Status.START_SELECT_STANDART_LOCATION.toString()))
+            onSelectStandartLocation(message);
+        else if (status.equals(Status.GET_WEATHER.toString()))
+            getWeather(message);
+        else if (Signs.isCreateNoteSigns(message))
             createNote(message);
-        else if (isGetAllNotesSigns(message))
+        else if (Signs.isGetAllNotesSigns(message))
             getAllNotes(message);
-        else if (isContainsGoogleSigns(message))
+        else if (Signs.isGoogleSigns(message))
             searchGoogle(message);
-        else if (text.substring(0, 9).toLowerCase().contains("напомни "))
-            addNotification(message);
+        else if (Signs.isGetWeather(message))
+            selectLocation(message);
         else
             doNotUnderstandMessage(message);
     }
@@ -115,33 +91,33 @@ public class Bot extends TelegramLongPollingBot {
         String note = message.getText();
         int chatId = Math.toIntExact(message.getChatId());
         if (ChatsManager.getLocale(message).equals("ru")) {
-            if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "to.create.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(16));
-            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "create.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(15));
-            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "add.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(15));
-            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "to.add.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(17));
         } else if (ChatsManager.getLocale(message).equals("en")) {
-            if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "to.create.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(16));
-            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "create.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(16));
-            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "add.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(13));
-            else if (note.toLowerCase().indexOf(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8")) == 0)
+            else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "to.add.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(13));
         }
         sendMessage(new SendMessage()
-                .setText(new String(resourceBundle.getString("after.create.note").getBytes("ISO-8859-1"), "UTF-8"))
+                .setText(MessageHelper.RBText(message, "after.create.note"))
                 .setChatId(String.valueOf(chatId)));
     }
 
     private List<Note> getAllNotes(Message message) throws TelegramApiException, UnsupportedEncodingException {
         List<Note> notes = NotesManager.getAllNotes(Math.toIntExact(message.getChatId()));
         String mess = "";
-        mess += Emoji.PENCIL.toString() + new String(resourceBundle.getString("your.notes").getBytes("ISO-8859-1"), "UTF-8") + "\n";
+        mess += Emoji.PENCIL.toString() + MessageHelper.RBText(message, "your.notes") + "\n";
         int a = 1;
         for (Note s : notes) {
             if (s.getText().length() > 20) {
@@ -156,25 +132,25 @@ public class Bot extends TelegramLongPollingBot {
         if (notes.size() == 0 || notes.isEmpty())
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText(new String(resourceBundle.getString("no.notes").getBytes("ISO-8859-1"), "UTF-8")));
+                    .setText(MessageHelper.RBText(message, "no.notes")));
         else {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
                     .setText(mess));
-            if (message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.read.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.view.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8"))
-                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8"))) {
+            if (message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.read.the.note"))
+                    || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.view.the.note"))
+                    || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.view.all.notes"))
+                    || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "all.notes"))) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
-                        .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
-                ChatsManager.setStatus(message, Status.CHOOSENOTE.toString());
-            } else if (message.getText().equalsIgnoreCase(new String(resourceBundle.getString("to.delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))
-                    || message.getText().equalsIgnoreCase(new String(resourceBundle.getString("delete.the.note").getBytes("ISO-8859-1"), "UTF-8"))) {
+                        .setText(MessageHelper.RBText(message, "info.about.get.note")));
+                ChatsManager.setStatus(message, Status.CHOOSE_NOTE.toString());
+            } else if (message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.delete.the.note"))
+                    || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "delete.the.note"))) {
                 sendMessage(new SendMessage()
                         .setChatId(String.valueOf(message.getChatId()))
-                        .setText(new String(resourceBundle.getString("info.about.delete.note").getBytes("ISO-8859-1"), "UTF-8")));
-                ChatsManager.setStatus(message, Status.CHOOSENOTEFORDEL.toString());
+                        .setText(MessageHelper.RBText(message, "info.about.delete.note")));
+                ChatsManager.setStatus(message, Status.CHOOSE_NOTE_FOR_DELETE.toString());
             }
         }
         return notes;
@@ -192,35 +168,35 @@ public class Bot extends TelegramLongPollingBot {
         if (number == -1) {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
+                    .setText(MessageHelper.RBText(message, "info.about.get.note")));
             return;
         }
         Note note = notes.get(number);
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(new String(resourceBundle.getString("note").getBytes("ISO-8859-1"), "UTF-8") + note.getText()));
-        ChatsManager.setStatus(message, "");
+                .setText(MessageHelper.RBText(message, "note") + " " + note.getText()));
+        ChatsManager.removeStatus(message);
     }
 
     private void helpMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
                 .enableHtml(true)
-                .setText(new String(resourceBundle.getString("help").getBytes("ISO-8859-1"), "UTF-8")));
+                .setText(MessageHelper.RBText(message, "help")));
     }
 
     private void onCancel(Message message) throws TelegramApiException, UnsupportedEncodingException {
-        ChatsManager.setStatus(message, "");
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(new String(resourceBundle.getString("well").getBytes("ISO-8859-1"), "UTF-8"))
+                .setText(MessageHelper.RBText(message, "well"))
                 .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
+        ChatsManager.removeStatus(message);
     }
 
     private void doNotUnderstandMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(Emoji.UNAMUSED_FACE.toString() + new String(resourceBundle.getString("misunderstanding").getBytes("ISO-8859-1"), "UTF-8")));
+                .setText(Emoji.UNAMUSED_FACE.toString() + MessageHelper.RBText(message, "misunderstanding")));
     }
 
     private void deleteNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
@@ -235,23 +211,23 @@ public class Bot extends TelegramLongPollingBot {
         if (number == -1) {
             sendMessage(new SendMessage()
                     .setChatId(String.valueOf(message.getChatId()))
-                    .setText(new String(resourceBundle.getString("info.about.get.note").getBytes("ISO-8859-1"), "UTF-8")));
+                    .setText(MessageHelper.RBText(message, "info.about.get.note")));
             return;
         }
         Note note = notes.get(number);
         NotesManager.deleteNote(note.getId());
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(new String(resourceBundle.getString("after.delete.note").getBytes("ISO-8859-1"), "UTF-8")));
-        ChatsManager.setStatus(message, "");
+                .setText(MessageHelper.RBText(message, "after.delete.note")));
+        ChatsManager.removeStatus(message);
     }
 
     private void changeLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(new String(resourceBundle.getString("select.language").getBytes("ISO-8859-1"), "UTF-8"))
-                .setReplayMarkup(getLanguagesKeyboard()));
-        ChatsManager.setStatus(message, Status.LANGUAGESELECTION.toString());
+                .setText(MessageHelper.RBText(message, "select.language"))
+                .setReplayMarkup(Keyboard.getLanguagesKeyboard()));
+        ChatsManager.setStatus(message, Status.LANGUAGE_SELECTION.toString());
     }
 
     private void onSelectLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
@@ -259,29 +235,51 @@ public class Bot extends TelegramLongPollingBot {
             ChatsManager.setLocale(message, "ru");
         else if (message.getText().equalsIgnoreCase("English"))
             ChatsManager.setLocale(message, "en");
-        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(new String(resourceBundle.getString("after.select.language").getBytes("ISO-8859-1"), "UTF-8"))
+                .setText(MessageHelper.RBText(message, "after.select.language"))
                 .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
-        ChatsManager.setStatus(message, "");
+        ChatsManager.removeStatus(message);
+    }
+
+    private void onSelectStandartLocation(Message message) throws IOException, TelegramApiException {
+        if (message.hasText()) {
+            String text = message.getText();
+            if (text.equalsIgnoreCase(MessageHelper.RBText(message, "no.need")))
+                onCancel(message);
+            else
+                ChatsManager.setLocation(message, text);
+        } else if (message.hasLocation()) {
+            ChatsManager.setLocation(message, Geocoder.getTextByCoordinates(message));
+        } else {
+            sendMessage(new SendMessage().setChatId(String.valueOf(message
+                    .getChatId()))
+                    .setText(MessageHelper.RBText(message, "select.standart.location")));
+            return;
+        }
+        ChatsManager.removeStatus(message);
+        sendMessage(new SendMessage().setChatId(String.valueOf(message
+                .getChatId()))
+                .setText(MessageHelper.RBText(message, "complete.the.setting")));
     }
 
     private void startSelectLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
-                .setText(new String(resourceBundle.getString("select.language").getBytes("ISO-8859-1"), "UTF-8"))
-                .setReplayMarkup(getLanguagesKeyboard()));
+                .setText(MessageHelper.RBText(message, "select.language"))
+                .setReplayMarkup(Keyboard.getLanguagesKeyboard()));
         ChatsManager.setStatus(message, Status.START.toString());
     }
 
     private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
         onSelectLocale(message);
-        resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
         sendMessage(new SendMessage().setChatId(String.valueOf(message
                 .getChatId()))
-                .setText(new String(resourceBundle.getString("start").getBytes("ISO-8859-1"), "UTF-8")));
-        ChatsManager.setStatus(message, "");
+                .setText(MessageHelper.RBText(message, "start")));
+        ChatsManager.setStatus(message, Status.START_SELECT_STANDART_LOCATION.toString());
+        sendMessage(new SendMessage().setChatId(String.valueOf(message
+                .getChatId()))
+                .setText(MessageHelper.RBText(message, "select.standart.location")));
     }
 
     private void searchGoogle(Message message) throws TelegramApiException, IOException {
@@ -298,109 +296,26 @@ public class Bot extends TelegramLongPollingBot {
         NotificationsManager.addNote(chatId, text, date);
     }
 
-    private boolean isContainsGoogleSigns(Message message) throws UnsupportedEncodingException {
-        String text = message.getText();
-        String locale = ChatsManager.getLocale(message);
-        String reverce = String.valueOf(new StringBuilder(text).reverse());
-        if (locale.equalsIgnoreCase("ru")) {
-            try {
-                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.is.he").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.is.she").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("who.are").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 10).equalsIgnoreCase(new String(resourceBundle.getString("what.is").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (reverce.substring(0, 4).equalsIgnoreCase("отэ "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-        } else if (locale.equalsIgnoreCase("en")) {
-
+    private void getWeather(Message message) throws IOException, JAXBException, TelegramApiException {
+        String geo = "";
+        String text = "";
+        if (message.hasLocation()) {
+            geo = Geocoder.getTextByCoordinates(message);
+        } else if (message.hasText()) {
+            geo = message.getText();
         }
-        return false;
+        text = WeatherService.getText(geo);
+        int temp = WeatherService.getTemp(geo);
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(text + "\nТемпература: " + temp + "°C"));
+        ChatsManager.removeStatus(message);
     }
 
-    private boolean isCreateNoteSigns(Message message) throws UnsupportedEncodingException {
-        String text = message.getText();
-        String locale = ChatsManager.getLocale(message);
-        if (locale.equalsIgnoreCase("ru")) {
-            try {
-                if (text.substring(0, 15).equalsIgnoreCase(new String(resourceBundle.getString("create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 16).equalsIgnoreCase(new String(resourceBundle.getString("to.create.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 15).equalsIgnoreCase(new String(resourceBundle.getString("add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 17).equalsIgnoreCase(new String(resourceBundle.getString("to.add.the.note").getBytes("ISO-8859-1"), "UTF-8") + " "))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-        } else if (locale.equalsIgnoreCase("en")) {
-
-        }
-        return false;
-    }
-
-    private boolean isGetAllNotesSigns(Message message) throws UnsupportedEncodingException {
-        String text = message.getText();
-        String locale = ChatsManager.getLocale(message);
-        if (locale.equalsIgnoreCase("ru")) {
-            try {
-                if (text.substring(0, 17).equalsIgnoreCase(new String(resourceBundle.getString("to.read.the.note").getBytes("ISO-8859-1"), "UTF-8")))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 18).equalsIgnoreCase(new String(resourceBundle.getString("to.view.the.note").getBytes("ISO-8859-1"), "UTF-8")))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 15).equalsIgnoreCase(new String(resourceBundle.getString("to.delete.the.note").getBytes("ISO-8859-1"), "UTF-8")))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 13).equalsIgnoreCase(new String(resourceBundle.getString("delete.the.note").getBytes("ISO-8859-1"), "UTF-8")))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 18).equalsIgnoreCase(new String(resourceBundle.getString("to.view.all.notes").getBytes("ISO-8859-1"), "UTF-8")))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-            try {
-                if (text.substring(0, 11).equalsIgnoreCase(new String(resourceBundle.getString("all.notes").getBytes("ISO-8859-1"), "UTF-8")))
-                    return true;
-            } catch (StringIndexOutOfBoundsException e) {
-            }
-        } else if (locale.equalsIgnoreCase("en")) {
-
-        }
-        return false;
+    private void selectLocation(Message message) throws TelegramApiException {
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(MessageHelper.RBText(message, "give.me.the.location")));
+        ChatsManager.setStatus(message, Status.GET_WEATHER.toString());
     }
 }

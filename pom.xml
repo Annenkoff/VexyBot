@@ -92,6 +92,11 @@
             <artifactId>geocoder-java</artifactId>
             <version>0.16</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.fedy2</groupId>
+            <artifactId>yahoo-weather-java-api</artifactId>
+            <version>2.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>
