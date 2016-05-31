@@ -32,6 +32,8 @@ public class WeatherService {
             return Emoji.UMBRELLA_WITH_RAIN_DROPS + "Дожди";
         else if (entext.equalsIgnoreCase("Mostly Clear"))
             return Emoji.SUN_BEHIND_CLOUD + "Облачно с прояснениями";
+        else if (entext.equalsIgnoreCase("Clear"))
+            return Emoji.SUN_WITH_FACE + "Ясно";
         return "";
     }
 }

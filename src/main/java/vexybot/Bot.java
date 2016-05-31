@@ -84,7 +84,7 @@ public class Bot extends TelegramLongPollingBot {
         else if (Signs.isGetWeather(message))
             selectLocation(message);
         else
-            doNotUnderstandMessage(message);
+            anotherAnswer(message);
     }
 
     private void createNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
@@ -298,7 +298,7 @@ public class Bot extends TelegramLongPollingBot {
 
     private void getWeather(Message message) throws IOException, JAXBException, TelegramApiException {
         String geo = "";
-        String text = "";
+        String text;
         if (message.hasLocation()) {
             geo = Geocoder.getTextByCoordinates(message);
         } else if (message.hasText()) {
@@ -317,5 +317,12 @@ public class Bot extends TelegramLongPollingBot {
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(MessageHelper.RBText(message, "give.me.the.location")));
         ChatsManager.setStatus(message, Status.GET_WEATHER.toString());
+    }
+
+    private void anotherAnswer(Message message) throws IOException, TelegramApiException {
+        String answer = MessageHelper.getAnswer(message);
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(answer));
     }
 }
