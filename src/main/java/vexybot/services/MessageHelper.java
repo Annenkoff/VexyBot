@@ -22,7 +22,7 @@ public class MessageHelper {
 
     public static String getAnswer(Message message) throws IOException {
         Properties properties = new Properties();
-        properties.load(new InputStreamReader(new FileInputStream("src/main/resources/messages.properties"), "UTF-8"));
+        properties.load(new InputStreamReader(new FileInputStream("src/main/resources/messages/messages.properties"), "UTF-8"));
         String text = message.getText().replace(" ", "_").toLowerCase();
         String answer = properties.getProperty(text);
         List<String> all = new ArrayList<>(Arrays.asList(answer.split("#")));
