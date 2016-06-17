@@ -1,4 +1,10 @@
 package vexybot.aggregator.model;
 
-public class WikihowStrategy {
+import java.io.IOException;
+
+public class WikihowStrategy implements Strategy {
+    @Override
+    public String getInfo(String searchString) throws IOException {
+        return null;
+    }
 }

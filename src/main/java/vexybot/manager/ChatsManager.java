@@ -1,9 +1,9 @@
-package vexybot.dao;
+package vexybot.manager;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.telegram.telegrambots.api.objects.Message;
-import vexybot.entity.Chat;
+import vexybot.dao.Chat;
 import vexybot.util.HibernateSessionFactory;
 
 public class ChatsManager {

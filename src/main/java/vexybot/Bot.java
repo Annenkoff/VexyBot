@@ -7,10 +7,10 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.aggregator.model.GoogleStrategy;
-import vexybot.dao.ChatsManager;
-import vexybot.dao.NotesManager;
-import vexybot.dao.NotificationsManager;
-import vexybot.entity.Note;
+import vexybot.dao.Note;
+import vexybot.manager.ChatsManager;
+import vexybot.manager.NotesManager;
+import vexybot.manager.NotificationsManager;
 import vexybot.services.*;
 
 import javax.xml.bind.JAXBException;

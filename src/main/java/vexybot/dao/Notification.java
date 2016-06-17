@@ -1,4 +1,4 @@
-package vexybot.entity;
+package vexybot.dao;
 
 import javax.persistence.*;
 import java.sql.Date;

@@ -1,7 +1,7 @@
 package vexybot.services;
 
 import org.telegram.telegrambots.api.objects.Message;
-import vexybot.dao.ChatsManager;
+import vexybot.manager.ChatsManager;
 
 import java.io.UnsupportedEncodingException;
 

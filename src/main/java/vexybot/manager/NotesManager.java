@@ -1,8 +1,8 @@
-package vexybot.dao;
+package vexybot.manager;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import vexybot.entity.Note;
+import vexybot.dao.Note;
 import vexybot.util.HibernateSessionFactory;
 
 import java.text.SimpleDateFormat;

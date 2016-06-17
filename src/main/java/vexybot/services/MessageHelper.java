@@ -2,7 +2,7 @@ package vexybot.services;
 
 import org.telegram.telegrambots.api.objects.Message;
 import vexybot.Config;
-import vexybot.dao.ChatsManager;
+import vexybot.manager.ChatsManager;
 
 import java.io.FileInputStream;
 import java.io.IOException;

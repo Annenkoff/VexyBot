@@ -1,8 +1,8 @@
-package vexybot.dao;
+package vexybot.manager;
 
 import org.hibernate.Session;
 import org.telegram.telegrambots.api.objects.Message;
-import vexybot.entity.Notification;
+import vexybot.dao.Notification;
 import vexybot.util.HibernateSessionFactory;
 
 import java.text.DateFormat;
