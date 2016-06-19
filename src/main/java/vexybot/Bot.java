@@ -260,9 +260,6 @@ public class Bot extends TelegramLongPollingBot {
             return;
         }
         ChatsManager.removeStatus(message);
-        sendMessage(new SendMessage().setChatId(String.valueOf(message
-                .getChatId()))
-                .setText(MessageHelper.RBText(message, "complete.the.setting")));
         start(message);
     }
 
@@ -285,6 +282,10 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(MessageHelper.RBText(message, "start")));
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .enableHtml(true)
+                .setText(MessageHelper.RBText(message, "start.vote") + Emoji.SMILING_FACE_WITH_OPEN_MOUTH));
     }
 
     private void searchGoogle(Message message) throws TelegramApiException, IOException {
