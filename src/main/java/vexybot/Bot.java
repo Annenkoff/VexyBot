@@ -110,9 +110,8 @@ public class Bot extends TelegramLongPollingBot {
             else if (note.toLowerCase().indexOf(MessageHelper.RBText(message, "to.add.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(13));
         }
-        sendMessage(new SendMessage()
-                .setText(MessageHelper.RBText(message, "after.create.note"))
-                .setChatId(String.valueOf(chatId)));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "after.create.note")));
     }
 
     private List<Note> getAllNotes(Message message) throws TelegramApiException, UnsupportedEncodingException {
@@ -131,26 +130,22 @@ public class Bot extends TelegramLongPollingBot {
             a++;
         }
         if (notes.size() == 0 || notes.isEmpty())
-            sendMessage(new SendMessage()
-                    .setChatId(String.valueOf(message.getChatId()))
-                    .setText(MessageHelper.RBText(message, "no.notes")));
+            sendMessage(MessageHelper.getSendMessage(message,
+                    MessageHelper.RBText(message, "no.notes")));
         else {
-            sendMessage(new SendMessage()
-                    .setChatId(String.valueOf(message.getChatId()))
-                    .setText(mess));
+            sendMessage(MessageHelper.getSendMessage(message,
+                    mess));
             if (message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.read.the.note"))
                     || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.view.the.note"))
                     || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.view.all.notes"))
                     || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "all.notes"))) {
-                sendMessage(new SendMessage()
-                        .setChatId(String.valueOf(message.getChatId()))
-                        .setText(MessageHelper.RBText(message, "info.about.get.note")));
+                sendMessage(MessageHelper.getSendMessage(message,
+                        MessageHelper.RBText(message, "info.about.get.note")));
                 ChatsManager.setStatus(message, Status.CHOOSE_NOTE.toString());
             } else if (message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "to.delete.the.note"))
                     || message.getText().equalsIgnoreCase(MessageHelper.RBText(message, "delete.the.note"))) {
-                sendMessage(new SendMessage()
-                        .setChatId(String.valueOf(message.getChatId()))
-                        .setText(MessageHelper.RBText(message, "info.about.delete.note")));
+                sendMessage(MessageHelper.getSendMessage(message,
+                        MessageHelper.RBText(message, "info.about.delete.note")));
                 ChatsManager.setStatus(message, Status.CHOOSE_NOTE_FOR_DELETE.toString());
             }
         }
@@ -167,37 +162,31 @@ public class Bot extends TelegramLongPollingBot {
             number = -1;
         }
         if (number == -1) {
-            sendMessage(new SendMessage()
-                    .setChatId(String.valueOf(message.getChatId()))
-                    .setText(MessageHelper.RBText(message, "info.about.get.note")));
+            sendMessage(MessageHelper.getSendMessage(message,
+                    MessageHelper.RBText(message, "info.about.get.note")));
             return;
         }
         Note note = notes.get(number);
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "note") + " " + note.getText()));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "note") + " " + note.getText()));
         ChatsManager.removeStatus(message);
     }
 
     private void helpMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .enableHtml(true)
-                .setText(MessageHelper.RBText(message, "help")));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "help")));
     }
 
     private void onCancel(Message message) throws TelegramApiException, UnsupportedEncodingException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "well"))
-                .setReplayMarkup(Keyboard.hideKeyboard()));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "well"),
+                Keyboard.hideKeyboard()));
         ChatsManager.removeStatus(message);
     }
 
     private void doNotUnderstandMessage(Message message) throws TelegramApiException, UnsupportedEncodingException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(Emoji.UNAMUSED_FACE.toString() + MessageHelper.RBText(message, "misunderstanding")));
+        sendMessage(MessageHelper.getSendMessage(message,
+                Emoji.UNAMUSED_FACE.toString() + MessageHelper.RBText(message, "misunderstanding")));
     }
 
     private void deleteNote(Message message) throws TelegramApiException, UnsupportedEncodingException {
@@ -210,24 +199,21 @@ public class Bot extends TelegramLongPollingBot {
             number = -1;
         }
         if (number == -1) {
-            sendMessage(new SendMessage()
-                    .setChatId(String.valueOf(message.getChatId()))
-                    .setText(MessageHelper.RBText(message, "info.about.get.note")));
+            sendMessage(MessageHelper.getSendMessage(message,
+                    MessageHelper.RBText(message, "info.about.get.note")));
             return;
         }
         Note note = notes.get(number);
         NotesManager.deleteNote(note.getId());
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "after.delete.note")));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "after.delete.note")));
         ChatsManager.removeStatus(message);
     }
 
     private void changeLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "select.language"))
-                .setReplayMarkup(Keyboard.getLanguagesKeyboard()));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "select.language"),
+                Keyboard.getLanguagesKeyboard()));
         ChatsManager.setStatus(message, Status.LANGUAGE_SELECTION.toString());
     }
 
@@ -236,10 +222,9 @@ public class Bot extends TelegramLongPollingBot {
             ChatsManager.setLocale(message, "ru");
         else if (message.getText().equalsIgnoreCase("English"))
             ChatsManager.setLocale(message, "en");
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "after.select.language"))
-                .setReplayMarkup(Keyboard.hideKeyboard()));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "after.select.language"),
+                Keyboard.hideKeyboard()));
         ChatsManager.removeStatus(message);
         startSelectStandartLocation(message);
     }
@@ -254,9 +239,8 @@ public class Bot extends TelegramLongPollingBot {
         } else if (message.hasLocation()) {
             ChatsManager.setLocation(message, Geocoder.getTextByCoordinates(message));
         } else {
-            sendMessage(new SendMessage().setChatId(String.valueOf(message
-                    .getChatId()))
-                    .setText(MessageHelper.RBText(message, "select.standart.location")));
+            sendMessage(MessageHelper.getSendMessage(message,
+                    MessageHelper.RBText(message, "select.standart.location")));
             return;
         }
         ChatsManager.removeStatus(message);
@@ -264,35 +248,28 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void startSelectLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "select.language"))
-                .setReplayMarkup(Keyboard.getLanguagesKeyboard()));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "select.language"),
+                Keyboard.getLanguagesKeyboard()));
         ChatsManager.setStatus(message, Status.LANGUAGE_SELECTION.toString());
     }
 
     private void startSelectStandartLocation(Message message) throws TelegramApiException {
-        sendMessage(new SendMessage().setChatId(String.valueOf(message
-                .getChatId()))
-                .setText(MessageHelper.RBText(message, "select.standart.location")));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "select.standart.location")));
         ChatsManager.setStatus(message, Status.ON_SELECT_STANDART_LOCATION.toString());
     }
 
     private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "start")));
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .enableHtml(true)
-                .setText(MessageHelper.RBText(message, "start.vote") + Emoji.SMILING_FACE_WITH_OPEN_MOUTH));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "start")));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "start.vote") + Emoji.SMILING_FACE_WITH_OPEN_MOUTH));
     }
 
     private void searchGoogle(Message message) throws TelegramApiException, IOException {
-        String s = new GoogleStrategy().getInfo(message.getText());
-        sendMessage(new SendMessage().setChatId(String.valueOf(message
-                .getChatId()))
-                .setText(s));
+        String info = new GoogleStrategy().getInfo(message.getText());
+        sendMessage(MessageHelper.getSendMessage(message, info));
     }
 
     private void addNotification(Message message) {
@@ -312,23 +289,20 @@ public class Bot extends TelegramLongPollingBot {
         }
         text = WeatherService.getText(geo);
         int temp = WeatherService.getTemp(geo);
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(text + "\nТемпература: " + temp + "°C"));
+        sendMessage(MessageHelper.getSendMessage(message,
+                text + "\nТемпература: " + temp + "°C"));
         ChatsManager.removeStatus(message);
     }
 
     private void selectLocation(Message message) throws TelegramApiException {
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(MessageHelper.RBText(message, "give.me.the.location")));
+        sendMessage(MessageHelper.getSendMessage(message,
+                MessageHelper.RBText(message, "give.me.the.location")));
         ChatsManager.setStatus(message, Status.GET_WEATHER.toString());
     }
 
     private void anotherAnswer(Message message) throws IOException, TelegramApiException {
         String answer = MessageHelper.getAnswer(message);
-        sendMessage(new SendMessage()
-                .setChatId(String.valueOf(message.getChatId()))
-                .setText(answer));
+        sendMessage(MessageHelper.getSendMessage(message,
+                answer));
     }
 }

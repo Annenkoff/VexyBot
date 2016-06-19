@@ -1,6 +1,8 @@
 package vexybot.services;
 
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import vexybot.Config;
 import vexybot.manager.ChatsManager;
 
@@ -28,5 +30,20 @@ public class MessageHelper {
         List<String> all = new ArrayList<>(Arrays.asList(answer.split("#")));
         Collections.shuffle(all);
         return all.get(0);
+    }
+
+    public static SendMessage getSendMessage(Message message, String text, ReplyKeyboard keyboard) {
+        return new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(text)
+                .setReplayMarkup(keyboard)
+                .enableHtml(true);
+    }
+
+    public static SendMessage getSendMessage(Message message, String text) {
+        return new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(text)
+                .enableHtml(true);
     }
 }
