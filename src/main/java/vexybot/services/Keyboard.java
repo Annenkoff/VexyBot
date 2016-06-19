@@ -1,5 +1,6 @@
 package vexybot.services;
 
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -7,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Keyboard {
+    public static ReplyKeyboardHide hideKeyboard() {
+        return new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true);
+    }
+
     public static ReplyKeyboardMarkup getLanguagesKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);

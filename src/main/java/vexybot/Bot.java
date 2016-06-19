@@ -4,7 +4,6 @@ import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardHide;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import vexybot.aggregator.model.GoogleStrategy;
 import vexybot.dao.Note;
@@ -71,8 +70,10 @@ public class Bot extends TelegramLongPollingBot {
             deleteNote(message);
         else if (status.equals(Status.LANGUAGE_SELECTION.toString()))
             onSelectLocale(message);
-        else if (status.equals(Status.START_SELECT_STANDART_LOCATION.toString()))
+        else if (status.equals(Status.ON_SELECT_STANDART_LOCATION.toString()))
             onSelectStandartLocation(message);
+        else if (status.equals(Status.START_SELECT_STANDART_LOCATION.toString()))
+            startSelectStandartLocation(message);
         else if (status.equals(Status.GET_WEATHER.toString()))
             getWeather(message);
         else if (Signs.isCreateNoteSigns(message))
@@ -189,7 +190,7 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(MessageHelper.RBText(message, "well"))
-                .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
+                .setReplayMarkup(Keyboard.hideKeyboard()));
         ChatsManager.removeStatus(message);
     }
 
@@ -238,8 +239,9 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage(new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(MessageHelper.RBText(message, "after.select.language"))
-                .setReplayMarkup(new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true)));
+                .setReplayMarkup(Keyboard.hideKeyboard()));
         ChatsManager.removeStatus(message);
+        startSelectStandartLocation(message);
     }
 
     private void onSelectStandartLocation(Message message) throws IOException, TelegramApiException {
@@ -261,6 +263,7 @@ public class Bot extends TelegramLongPollingBot {
         sendMessage(new SendMessage().setChatId(String.valueOf(message
                 .getChatId()))
                 .setText(MessageHelper.RBText(message, "complete.the.setting")));
+        start(message);
     }
 
     private void startSelectLocale(Message message) throws UnsupportedEncodingException, TelegramApiException {
@@ -268,18 +271,20 @@ public class Bot extends TelegramLongPollingBot {
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(MessageHelper.RBText(message, "select.language"))
                 .setReplayMarkup(Keyboard.getLanguagesKeyboard()));
-        ChatsManager.setStatus(message, Status.START.toString());
+        ChatsManager.setStatus(message, Status.LANGUAGE_SELECTION.toString());
     }
 
-    private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
-        onSelectLocale(message);
-        sendMessage(new SendMessage().setChatId(String.valueOf(message
-                .getChatId()))
-                .setText(MessageHelper.RBText(message, "start")));
-        ChatsManager.setStatus(message, Status.START_SELECT_STANDART_LOCATION.toString());
+    private void startSelectStandartLocation(Message message) throws TelegramApiException {
         sendMessage(new SendMessage().setChatId(String.valueOf(message
                 .getChatId()))
                 .setText(MessageHelper.RBText(message, "select.standart.location")));
+        ChatsManager.setStatus(message, Status.ON_SELECT_STANDART_LOCATION.toString());
+    }
+
+    private void start(Message message) throws TelegramApiException, UnsupportedEncodingException {
+        sendMessage(new SendMessage()
+                .setChatId(String.valueOf(message.getChatId()))
+                .setText(MessageHelper.RBText(message, "start")));
     }
 
     private void searchGoogle(Message message) throws TelegramApiException, IOException {

@@ -3,7 +3,7 @@ package vexybot.dao;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Chats", schema = "vex", catalog = "")
+@Table(name = "chats", schema = "vexy", catalog = "")
 public class Chat {
     private int id;
     private String status;
@@ -13,7 +13,7 @@ public class Chat {
     private Integer eveningNotification;
 
     @Id
-    @Column(name = "ID", nullable = false)
+    @Column(name = "ID")
     public int getId() {
         return id;
     }
@@ -23,7 +23,7 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "STATUS", nullable = true, length = -1)
+    @Column(name = "STATUS")
     public String getStatus() {
         return status;
     }
@@ -33,7 +33,7 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "LOCALE", nullable = false, length = -1)
+    @Column(name = "LOCALE")
     public String getLocale() {
         return locale;
     }
@@ -43,7 +43,7 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "LOCATION", nullable = true, length = -1)
+    @Column(name = "LOCATION")
     public String getLocation() {
         return location;
     }
@@ -53,23 +53,23 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "MORNINGNOTIFICATION", nullable = true)
+    @Column(name = "MORNING_NOTIFICATION")
     public Integer getMorningNotification() {
         return morningNotification;
     }
 
-    public void setMorningNotification(Integer morningnotification) {
-        this.morningNotification = morningnotification;
+    public void setMorningNotification(Integer morningNotification) {
+        this.morningNotification = morningNotification;
     }
 
     @Basic
-    @Column(name = "EVENINGNOTIFICATION", nullable = true)
+    @Column(name = "EVENING_NOTIFICATION")
     public Integer getEveningNotification() {
         return eveningNotification;
     }
 
-    public void setEveningNotification(Integer eveningnotification) {
-        this.eveningNotification = eveningnotification;
+    public void setEveningNotification(Integer eveningNotification) {
+        this.eveningNotification = eveningNotification;
     }
 
     @Override

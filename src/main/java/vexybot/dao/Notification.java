@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
-@Table(name = "Notifications", schema = "vex", catalog = "")
+@Table(name = "notifications", schema = "vexy", catalog = "")
 public class Notification {
     private int id;
     private int chatId;
@@ -12,7 +12,7 @@ public class Notification {
     private String description;
 
     @Id
-    @Column(name = "ID", nullable = false)
+    @Column(name = "ID")
     public int getId() {
         return id;
     }
@@ -22,27 +22,27 @@ public class Notification {
     }
 
     @Basic
-    @Column(name = "CHATID", nullable = false)
+    @Column(name = "CHAT_ID")
     public int getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatid) {
-        this.chatId = chatid;
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
     }
 
     @Basic
-    @Column(name = "DATEOFNOTIFICATION", nullable = false)
+    @Column(name = "DATE_OF_NOTIFICATION")
     public Date getDateOfNotification() {
         return dateOfNotification;
     }
 
-    public void setDateOfNotification(Date dateofnotification) {
-        this.dateOfNotification = dateofnotification;
+    public void setDateOfNotification(Date dateOfNotification) {
+        this.dateOfNotification = dateOfNotification;
     }
 
     @Basic
-    @Column(name = "DESCRIPTION", nullable = false, length = -1)
+    @Column(name = "DESCRIPTION")
     public String getDescription() {
         return description;
     }
