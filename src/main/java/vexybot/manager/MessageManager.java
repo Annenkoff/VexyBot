@@ -4,6 +4,7 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import vexybot.Config;
+import vexybot.services.Keyboard;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class MessageManager implements Manager {
         return new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
                 .setText(text)
-                .enableHtml(true);
+                .enableHtml(true)
+                .setReplayMarkup(Keyboard.hideKeyboard());
     }
 }

@@ -5,7 +5,6 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import vexybot.helper.MessageHelper;
 import vexybot.manager.ChatsManager;
 import vexybot.services.Signs;
 
@@ -57,13 +56,13 @@ public class Bot extends TelegramLongPollingBot {
         }
         String status = ChatsManager.getStatus(message);
         if (text.equals("/start"))
-            startSelectLocale(message);
+            beforeStartSelectLocale(message);
         else if (text.equals("/cancel"))
-            MessageHelper.onCancel(message);
+            onCancel(message);
         else if (text.equals("/lang"))
-            changeLocale(message);
+            beforeSelectLocale(message);
         else if (text.equals("/help"))
-            MessageHelper.helpMessage(message);
+            helpMessage(message);
         else if (status.equals(Status.START.toString()))
             start(message);
         else if (status.equals(Status.CHOOSE_NOTE.toString()))
@@ -71,7 +70,9 @@ public class Bot extends TelegramLongPollingBot {
         else if (status.equals(Status.CHOOSE_NOTE_FOR_DELETE.toString()))
             deleteNote(message);
         else if (status.equals(Status.LANGUAGE_SELECTION.toString()))
-            onSelectLocale(message);
+            onStartSelectLocale(message, false);
+        else if (status.equals(Status.START_LANGUAGE_SELECTION.toString()))
+            onStartSelectLocale(message, true);
         else if (status.equals(Status.ON_SELECT_STANDART_LOCATION.toString()))
             onSelectStandartLocation(message);
         else if (status.equals(Status.START_SELECT_STANDART_LOCATION.toString()))
