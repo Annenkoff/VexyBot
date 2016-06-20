@@ -10,6 +10,10 @@ import su.vexy.vexybot.services.Signs;
 
 import java.io.UnsupportedEncodingException;
 
+import static su.vexy.vexybot.helper.LocaleHelper.*;
+import static su.vexy.vexybot.helper.LocationHelper.*;
+import static su.vexy.vexybot.helper.MessageHelper.*;
+import static su.vexy.vexybot.helper.NoteHelper.*;
 import static su.vexy.vexybot.helper.SearchHelper.searchGoogle;
 import static su.vexy.vexybot.helper.WeatherHelper.getWeather;
 
