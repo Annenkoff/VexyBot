@@ -3,7 +3,7 @@ package vexybot.manager;
 import org.hibernate.Session;
 import org.telegram.telegrambots.api.objects.Message;
 import vexybot.dao.Notification;
-import vexybot.util.HibernateSessionFactory;
+import vexybot.services.HibernateSessionFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class NotificationsManager extends Thread {
+public class NotificationsManager extends Thread implements Manager {
     private static DateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static void addNote(int chatId, String text, java.sql.Date dateOfNotification) {

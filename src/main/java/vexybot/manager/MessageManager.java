@@ -1,10 +1,9 @@
-package vexybot.services;
+package vexybot.manager;
 
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import vexybot.Config;
-import vexybot.manager.ChatsManager;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-public class MessageHelper {
+public class MessageManager implements Manager {
     public static String RBText(Message message, String name) {
         ResourceBundle resourceBundle = ResourceBundle.getBundle(Config.RESOURCE_PATH + ChatsManager.getLocale(message));
         try {

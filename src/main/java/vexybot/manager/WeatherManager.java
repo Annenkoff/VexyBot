@@ -1,13 +1,14 @@
-package vexybot.services;
+package vexybot.manager;
 
 import com.github.fedy2.weather.YahooWeatherService;
 import com.github.fedy2.weather.data.Channel;
 import com.github.fedy2.weather.data.unit.DegreeUnit;
+import vexybot.services.Emoji;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-public class WeatherService {
+public class WeatherManager implements Manager {
     public static int getTemp(String string) throws JAXBException, IOException {
         YahooWeatherService yahooWeatherService = new YahooWeatherService();
         Channel channel = yahooWeatherService.getForecastForLocation(string, DegreeUnit.CELSIUS).all().get(0);

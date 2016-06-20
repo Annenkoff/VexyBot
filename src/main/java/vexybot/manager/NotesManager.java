@@ -3,12 +3,12 @@ package vexybot.manager;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import vexybot.dao.Note;
-import vexybot.util.HibernateSessionFactory;
+import vexybot.services.HibernateSessionFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class NotesManager {
+public class NotesManager implements Manager {
     public static void addNote(int chatId, String text) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         try {

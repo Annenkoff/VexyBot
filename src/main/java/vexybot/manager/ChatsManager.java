@@ -4,9 +4,9 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.telegram.telegrambots.api.objects.Message;
 import vexybot.dao.Chat;
-import vexybot.util.HibernateSessionFactory;
+import vexybot.services.HibernateSessionFactory;
 
-public class ChatsManager {
+public class ChatsManager implements Manager {
     public static void checkChat(Message message) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
