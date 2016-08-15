@@ -40,10 +40,4 @@ public class NotesManager implements Manager {
         query.setParameter("chatId", chatId);
         return query.list();
     }
-
-    public static Note getNote(int id) {
-        Session session = HibernateSessionFactory.getSessionFactory().openSession();
-        Note note = (Note) session.get(Note.class, id);
-        return note;
-    }
 }
