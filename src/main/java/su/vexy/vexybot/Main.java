@@ -11,7 +11,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         ApplicationContext context = new ClassPathXmlApplicationContext("context.xml");
-        TelegramBotsApi telegramBotsApi = (TelegramBotsApi) context.getBean("telegramBotsApi");
+        TelegramBotsApi telegramBotsApi = (TelegramBotsApi) context.getBean("telegramBotsApi"); // Create the telegram bot object.
         try {
             telegramBotsApi.registerBot((TelegramLongPollingBot) context.getBean("botTelegram"));
         } catch (TelegramApiException e) {
