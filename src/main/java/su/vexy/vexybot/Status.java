@@ -1,5 +1,8 @@
 package su.vexy.vexybot;
 
+/**
+ * Содержит основные этапы общения с ботом.
+ */
 public enum Status {
     START,
     CHOOSE_NOTE,
