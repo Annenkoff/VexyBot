@@ -2,8 +2,8 @@ package su.vexy.vexybot.helper;
 
 import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.objects.Message;
-import su.vexy.vexybot.Bot;
 import su.vexy.vexybot.Status;
+import su.vexy.vexybot.TelegramBot;
 import su.vexy.vexybot.dao.Note;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.manager.MessageManager;
@@ -36,7 +36,7 @@ public class NoteHelper implements Helper {
             else if (note.toLowerCase().indexOf(MessageManager.RBText(message, "to.add.the.note")) == 0)
                 NotesManager.addNote(chatId, note.substring(13));
         }
-        Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+        TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                 MessageManager.RBText(message, "after.create.note")));
     }
 
@@ -56,21 +56,21 @@ public class NoteHelper implements Helper {
             a++;
         }
         if (notes.size() == 0 || notes.isEmpty())
-            Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+            TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                     MessageManager.RBText(message, "no.notes")));
         else {
-            Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+            TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                     mess));
             if (message.getText().equalsIgnoreCase(MessageManager.RBText(message, "to.read.the.note"))
                     || message.getText().equalsIgnoreCase(MessageManager.RBText(message, "to.view.the.note"))
                     || message.getText().equalsIgnoreCase(MessageManager.RBText(message, "to.view.all.notes"))
                     || message.getText().equalsIgnoreCase(MessageManager.RBText(message, "all.notes"))) {
-                Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+                TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                         MessageManager.RBText(message, "info.about.get.note")));
                 ChatsManager.setStatus(message, Status.CHOOSE_NOTE.toString());
             } else if (message.getText().equalsIgnoreCase(MessageManager.RBText(message, "to.delete.the.note"))
                     || message.getText().equalsIgnoreCase(MessageManager.RBText(message, "delete.the.note"))) {
-                Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+                TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                         MessageManager.RBText(message, "info.about.delete.note")));
                 ChatsManager.setStatus(message, Status.CHOOSE_NOTE_FOR_DELETE.toString());
             }
@@ -88,12 +88,12 @@ public class NoteHelper implements Helper {
             number = -1;
         }
         if (number == -1) {
-            Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+            TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                     MessageManager.RBText(message, "info.about.get.note")));
             return;
         }
         Note note = notes.get(number);
-        Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+        TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                 MessageManager.RBText(message, "note") + " " + note.getText()));
         ChatsManager.removeStatus(message);
     }
@@ -108,13 +108,13 @@ public class NoteHelper implements Helper {
             number = -1;
         }
         if (number == -1) {
-            Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+            TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                     MessageManager.RBText(message, "info.about.get.note")));
             return;
         }
         Note note = notes.get(number);
         NotesManager.deleteNote(note.getId());
-        Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+        TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                 MessageManager.RBText(message, "after.delete.note")));
         ChatsManager.removeStatus(message);
     }

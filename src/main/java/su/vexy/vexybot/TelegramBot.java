@@ -17,8 +17,8 @@ import static su.vexy.vexybot.helper.NoteHelper.*;
 import static su.vexy.vexybot.helper.SearchHelper.searchGoogle;
 import static su.vexy.vexybot.helper.WeatherHelper.getWeather;
 
-public class Bot extends TelegramLongPollingBot {
-    public static Bot bot = new Bot();
+public class TelegramBot extends TelegramLongPollingBot {
+    public static TelegramBot bot = new TelegramBot();
 
     // Проверка на обновления.
     public void onUpdateReceived(Update update) {

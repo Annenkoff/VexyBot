@@ -4,5 +4,5 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="telegramBotsApi" class="org.telegram.telegrambots.TelegramBotsApi"/>
-    <bean id="botTelegram" class="su.vexy.vexybot.Bot" scope="singleton"/>
+    <bean id="botTelegram" class="su.vexy.vexybot.TelegramBot" scope="singleton"/>
 </beans>

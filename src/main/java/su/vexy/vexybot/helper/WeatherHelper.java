@@ -2,7 +2,7 @@ package su.vexy.vexybot.helper;
 
 import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.objects.Message;
-import su.vexy.vexybot.Bot;
+import su.vexy.vexybot.TelegramBot;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.manager.MessageManager;
 import su.vexy.vexybot.manager.WeatherManager;
@@ -22,7 +22,7 @@ public class WeatherHelper implements Helper {
         }
         text = WeatherManager.getText(geo);
         int temp = WeatherManager.getTemp(geo);
-        Bot.bot.sendMessage(MessageManager.getSendMessage(message,
+        TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                 text + "\nТемпература: " + temp + "°C"));
         ChatsManager.removeStatus(message);
     }
