@@ -20,6 +20,7 @@ import static su.vexy.vexybot.helper.WeatherHelper.getWeather;
 public class Bot extends TelegramLongPollingBot {
     public static Bot bot = new Bot();
 
+    // Проверка на обновления.
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
@@ -47,6 +48,7 @@ public class Bot extends TelegramLongPollingBot {
         return Config.TOKEN;
     }
 
+    // Обработка входящего сообщения.
     private void handleIncomingMessage(Message message) throws Exception {
         ChatsManager.checkChat(message);
         String text = "";
