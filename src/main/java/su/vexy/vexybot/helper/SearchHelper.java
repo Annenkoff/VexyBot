@@ -2,8 +2,8 @@ package su.vexy.vexybot.helper;
 
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import su.vexy.vexybot.TelegramBot;
 import su.vexy.vexybot.aggregator.GoogleStrategy;
+import su.vexy.vexybot.bots.TelegramBot;
 import su.vexy.vexybot.manager.MessageManager;
 
 import java.io.IOException;

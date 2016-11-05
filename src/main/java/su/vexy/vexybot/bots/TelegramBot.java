@@ -1,9 +1,11 @@
-package su.vexy.vexybot;
+package su.vexy.vexybot.bots;
 
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import su.vexy.vexybot.Config;
+import su.vexy.vexybot.Status;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.services.Signs;
 

@@ -2,7 +2,7 @@ package su.vexy.vexybot.helper;
 
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import su.vexy.vexybot.TelegramBot;
+import su.vexy.vexybot.bots.TelegramBot;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.manager.MessageManager;
 import su.vexy.vexybot.services.Emoji;
