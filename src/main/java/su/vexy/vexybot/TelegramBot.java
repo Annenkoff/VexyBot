@@ -1,6 +1,5 @@
 package su.vexy.vexybot;
 
-import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -23,20 +22,18 @@ public class TelegramBot extends TelegramLongPollingBot {
     // Проверка на обновления.
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
-            Message message = update.getMessage();
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setText(message.getText());
-            sendMessage.setChatId(String.valueOf(message.getChatId()));
-            sendMessage.enableMarkdown(true);
-            try {
-                handleIncomingMessage(message);
-            } catch (Exception e) {
+            new Thread(() -> {
+                Message message = update.getMessage();
                 try {
-                    doNotUnderstandMessage(message);
-                } catch (UnsupportedEncodingException e1) {
-                } catch (TelegramApiException e1) {
+                    handleIncomingMessage(message);
+                } catch (Exception e) {
+                    try {
+                        doNotUnderstandMessage(message);
+                    } catch (UnsupportedEncodingException e1) {
+                    } catch (TelegramApiException e1) {
+                    }
                 }
-            }
+            }).start();
         }
     }
 
