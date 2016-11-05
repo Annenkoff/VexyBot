@@ -1,10 +1,10 @@
 package su.vexy.vexybot;
 
-import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.services.Signs;
 
@@ -33,8 +33,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 try {
                     doNotUnderstandMessage(message);
-                } catch (TelegramApiException e1) {
                 } catch (UnsupportedEncodingException e1) {
+                } catch (TelegramApiException e1) {
                 }
             }
         }

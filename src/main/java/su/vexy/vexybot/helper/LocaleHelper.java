@@ -1,7 +1,7 @@
 package su.vexy.vexybot.helper;
 
-import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.objects.Message;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
 import su.vexy.vexybot.Status;
 import su.vexy.vexybot.TelegramBot;
 import su.vexy.vexybot.manager.ChatsManager;

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Keyboard {
     public static ReplyKeyboardHide hideKeyboard() {
-        return new ReplyKeyboardHide().setSelective(true).setHideKeyboard(true);
+        return new ReplyKeyboardHide().setSelective(true);
     }
 
     public static ReplyKeyboardMarkup getLanguagesKeyboard() {
