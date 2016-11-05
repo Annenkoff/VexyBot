@@ -9,20 +9,24 @@
     <version>1.0</version>
 
     <properties>
-        <hibernate.version>4.1.11.Final</hibernate.version>
+        <telegrambots.version>2.4.0</telegrambots.version>
+        <hibernate.version>5.2.0.Final</hibernate.version>
+        <c3p0.version>0.9.1.2</c3p0.version>
         <mysql.version>5.1.24</mysql.version>
+        <junit.version>4.12</junit.version>
+        <dom4j.version>1.6.1</dom4j.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
-            <version>2.4.0</version>
+            <version>${telegrambots.version}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -35,9 +39,19 @@
             <version>${hibernate.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>${c3p0.version}</version>
+        </dependency>
+        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
+            <version>${dom4j.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>

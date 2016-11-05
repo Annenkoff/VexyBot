@@ -5,6 +5,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="connection.url">jdbc:mysql://annenkov.me:3306/a0080939_vexybot</property>
+        <property name="connection.provider_class">org.hibernate.c3p0.internal.C3P0ConnectionProvider</property>
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
         <property name="connection.username">a0080939_zzoorm</property>
         <property name="connection.password">ava2001</property>
