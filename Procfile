@@ -1,0 +1,1 @@
+worker: java -jar target/vexybot-1.0.jar
