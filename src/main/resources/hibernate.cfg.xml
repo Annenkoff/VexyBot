@@ -11,6 +11,7 @@
         <property name="hibernate.connection.useUnicode">true</property>
         <property name="hibernate.connection.characterEncoding">UTF-8</property>
         <property name="hibernate.connection.charSet">UTF-8</property>
+        <property name="hbm2ddl.auto">create</property>
         <mapping class="su.vexy.vexybot.dao.Note"/>
         <mapping class="su.vexy.vexybot.dao.Notification"/>
         <mapping class="su.vexy.vexybot.dao.Chat"/>

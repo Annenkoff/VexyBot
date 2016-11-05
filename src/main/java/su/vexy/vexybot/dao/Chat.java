@@ -3,17 +3,17 @@ package su.vexy.vexybot.dao;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "chats", schema = "vexy", catalog = "")
+@Table(name = "chats", schema = "a0080939_vexybot", catalog = "")
 public class Chat {
     private int id;
     private String status;
     private String locale;
     private String location;
-    private Integer morningNotification;
-    private Integer eveningNotification;
+    private int morningNotification;
+    private int eveningNotification;
 
     @Id
-    @Column(name = "ID")
+    @Column(name = "id")
     public int getId() {
         return id;
     }
@@ -23,7 +23,7 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "STATUS")
+    @Column(name = "status")
     public String getStatus() {
         return status;
     }
@@ -33,7 +33,7 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "LOCALE")
+    @Column(name = "locale")
     public String getLocale() {
         return locale;
     }
@@ -43,7 +43,7 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "LOCATION")
+    @Column(name = "location")
     public String getLocation() {
         return location;
     }
@@ -53,22 +53,22 @@ public class Chat {
     }
 
     @Basic
-    @Column(name = "MORNING_NOTIFICATION")
-    public Integer getMorningNotification() {
+    @Column(name = "morning_notification")
+    public int getMorningNotification() {
         return morningNotification;
     }
 
-    public void setMorningNotification(Integer morningNotification) {
+    public void setMorningNotification(int morningNotification) {
         this.morningNotification = morningNotification;
     }
 
     @Basic
-    @Column(name = "EVENING_NOTIFICATION")
-    public Integer getEveningNotification() {
+    @Column(name = "evening_notification")
+    public int getEveningNotification() {
         return eveningNotification;
     }
 
-    public void setEveningNotification(Integer eveningNotification) {
+    public void setEveningNotification(int eveningNotification) {
         this.eveningNotification = eveningNotification;
     }
 
@@ -80,13 +80,11 @@ public class Chat {
         Chat that = (Chat) o;
 
         if (id != that.id) return false;
+        if (morningNotification != that.morningNotification) return false;
+        if (eveningNotification != that.eveningNotification) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (locale != null ? !locale.equals(that.locale) : that.locale != null) return false;
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
-        if (morningNotification != null ? !morningNotification.equals(that.morningNotification) : that.morningNotification != null)
-            return false;
-        if (eveningNotification != null ? !eveningNotification.equals(that.eveningNotification) : that.eveningNotification != null)
-            return false;
 
         return true;
     }
@@ -97,8 +95,8 @@ public class Chat {
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (locale != null ? locale.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
-        result = 31 * result + (morningNotification != null ? morningNotification.hashCode() : 0);
-        result = 31 * result + (eveningNotification != null ? eveningNotification.hashCode() : 0);
+        result = 31 * result + morningNotification;
+        result = 31 * result + eveningNotification;
         return result;
     }
 }
