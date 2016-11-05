@@ -14,7 +14,9 @@
         <c3p0.version>0.9.1.2</c3p0.version>
         <mysql.version>5.1.24</mysql.version>
         <junit.version>4.12</junit.version>
-        <dom4j.version>1.6.1</dom4j.version>
+        <jsoup.version>1.9.1</jsoup.version>
+        <google.geocoder.version>0.16</google.geocoder.version>
+        <yahoo.weather.version>2.0.0</yahoo.weather.version>
     </properties>
 
     <dependencies>
@@ -49,34 +51,19 @@
             <version>${c3p0.version}</version>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>${dom4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.9.1</version>
+            <version>${jsoup.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.geocoder-java</groupId>
             <artifactId>geocoder-java</artifactId>
-            <version>0.16</version>
+            <version>${google.geocoder.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fedy2</groupId>
+            <artifactId>yahoo-weather-java-api</artifactId>
+            <version>${yahoo.weather.version}</version>
         </dependency>
     </dependencies>
 
