@@ -78,21 +78,6 @@
             <artifactId>geocoder-java</artifactId>
             <version>0.16</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.fedy2</groupId>
-            <artifactId>yahoo-weather-java-api</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.dvdme</groupId>
-            <artifactId>ForecastIOLib</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>4.3.0.RELEASE</version>
-        </dependency>
     </dependencies>
 
     <build>
