@@ -8,6 +8,7 @@ public class Chat {
     private int id;
     private String firstName;
     private String lastName;
+    private String phoneNumber;
     private String locale;
     private String location;
     private Integer morningNotification;
@@ -42,6 +43,16 @@ public class Chat {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    @Basic
+    @Column(name = "phone_number")
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Basic
@@ -104,6 +115,7 @@ public class Chat {
         if (id != that.id) return false;
         if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
         if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
+        if (phoneNumber != null ? !phoneNumber.equals(that.phoneNumber) : that.phoneNumber != null) return false;
         if (locale != null ? !locale.equals(that.locale) : that.locale != null) return false;
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
         if (morningNotification != null ? !morningNotification.equals(that.morningNotification) : that.morningNotification != null)
@@ -120,6 +132,7 @@ public class Chat {
         int result = id;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (phoneNumber != null ? phoneNumber.hashCode() : 0);
         result = 31 * result + (locale != null ? locale.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (morningNotification != null ? morningNotification.hashCode() : 0);

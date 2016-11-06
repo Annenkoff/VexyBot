@@ -21,7 +21,9 @@ public class ChatsManager implements Manager {
         session.beginTransaction();
         Chat chat = new Chat();
         chat.setId(Math.toIntExact(message.getChatId()));
-        chat.setStatus("");
+        chat.setFirstName(message.getContact().getFirstName());
+        chat.setLastName(message.getContact().getLastName());
+        chat.setPhoneNumber(message.getContact().getPhoneNumber());
         chat.setLocale("en");
         session.save(chat);
         session.getTransaction().commit();
