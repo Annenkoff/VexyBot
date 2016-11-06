@@ -19,18 +19,14 @@ public class Keyboard {
         replyKeyboardMarkup.setOneTimeKeyboad(false);
 
         List<KeyboardRow> keyboard = new ArrayList<>();
-        List<String> languages = new ArrayList<>();
-        languages.add("Русский");
-        languages.add("English");
-        for (String language : languages) {
-            KeyboardRow row = new KeyboardRow();
-            row.add(language);
-            keyboard.add(row);
-        }
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add("Русский");
+        keyboardRow.add("English");
 
-        KeyboardRow row = new KeyboardRow();
-        row.add("/cancel");
-        keyboard.add(row);
+        KeyboardRow keyboardLastRow = new KeyboardRow();
+        keyboardLastRow.add("/cancel");
+        keyboard.add(keyboardRow);
+        keyboard.add(keyboardLastRow);
         replyKeyboardMarkup.setKeyboard(keyboard);
 
         return replyKeyboardMarkup;
