@@ -6,12 +6,14 @@ import org.telegram.telegrambots.api.objects.Message;
 import su.vexy.vexybot.dao.Chat;
 import su.vexy.vexybot.services.HibernateSessionFactory;
 
+import java.util.List;
+
 public class ChatsManager implements Manager {
     public static void checkChat(Message message) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
-        Query query = session.createQuery("FROM Chat WHERE id=:chatId");
-        query.setParameter("chatId", chatId);
+        Query query = session.createQuery("FROM Chat");
+        List<Chat> ql = query.list();
         if (query.list().size() == 0 || query.list().isEmpty())
             addChat(message);
     }
@@ -81,5 +83,11 @@ public class ChatsManager implements Manager {
         chat.setStatus("");
         session.merge(chat);
         session.getTransaction().commit();
+    }
+
+    public static List<Chat> getAllChats() {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        Query query = session.createQuery("FROM Chat");
+        return query.list();
     }
 }

@@ -3,6 +3,7 @@ package su.vexy.vexybot.helper;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import su.vexy.vexybot.bots.TelegramBot;
+import su.vexy.vexybot.dao.Chat;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.manager.MessageManager;
 import su.vexy.vexybot.services.Emoji;
@@ -10,6 +11,7 @@ import su.vexy.vexybot.services.Keyboard;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static su.vexy.vexybot.manager.MessageManager.RBText;
 import static su.vexy.vexybot.manager.MessageManager.getSendMessage;
@@ -43,5 +45,16 @@ public class MessageHelper implements Helper {
         String answer = MessageManager.getAnswer(message);
         TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message,
                 answer));
+    }
+
+    public static void sendMessage(Message message, String text) throws TelegramApiException {
+        TelegramBot.bot.sendMessage(MessageManager.getSendMessage(message, text));
+    }
+
+    public static void newsletter(String text) throws TelegramApiException {
+        List<Chat> chats = ChatsManager.getAllChats();
+        for (Chat chat : chats) {
+            TelegramBot.bot.sendMessage(MessageManager.getSendMessage(chat.getId(), text));
+        }
     }
 }

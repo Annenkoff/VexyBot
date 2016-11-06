@@ -38,9 +38,23 @@ public class MessageManager implements Manager {
                 .enableHtml(true);
     }
 
+    public static SendMessage getSendMessage(int chatId, String text, ReplyKeyboard keyboard) {
+        return new SendMessage()
+                .setChatId(String.valueOf(chatId))
+                .setText(text)
+                .enableHtml(true);
+    }
+
     public static SendMessage getSendMessage(Message message, String text) {
         return new SendMessage()
                 .setChatId(String.valueOf(message.getChatId()))
+                .setText(text)
+                .enableHtml(true);
+    }
+
+    public static SendMessage getSendMessage(int chatId, String text) {
+        return new SendMessage()
+                .setChatId(String.valueOf(chatId))
                 .setText(text)
                 .enableHtml(true);
     }

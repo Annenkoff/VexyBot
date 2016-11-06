@@ -6,6 +6,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import su.vexy.vexybot.Config;
 import su.vexy.vexybot.Status;
+import su.vexy.vexybot.helper.MessageHelper;
 import su.vexy.vexybot.manager.ChatsManager;
 import su.vexy.vexybot.services.Signs;
 
@@ -64,6 +65,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             beforeSelectLocale(message);
         else if (text.equals("/help"))
             helpMessage(message);
+        else if (text.contains("/sendkey805458"))
+            MessageHelper.newsletter(message.getText().replace("/sendkey805458 ", ""));
         else if (status.equals(Status.START.toString()))
             start(message);
         else if (status.equals(Status.CHOOSE_NOTE.toString()))
