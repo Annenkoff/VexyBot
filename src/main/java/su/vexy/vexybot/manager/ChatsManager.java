@@ -21,10 +21,10 @@ public class ChatsManager implements Manager {
         session.beginTransaction();
         Chat chat = new Chat();
         chat.setId(Math.toIntExact(message.getChatId()));
-        chat.setFirstName(message.getContact().getFirstName());
-        chat.setLastName(message.getContact().getLastName());
-        chat.setPhoneNumber(message.getContact().getPhoneNumber());
-        chat.setLocale("en");
+        chat.setUserName(message.getChat().getUserName());
+        chat.setFirstName(message.getChat().getFirstName());
+        chat.setLastName(message.getChat().getLastName());
+        chat.setLocale("ru");
         session.save(chat);
         session.getTransaction().commit();
     }
@@ -33,7 +33,7 @@ public class ChatsManager implements Manager {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
         session.beginTransaction();
-        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat chat = session.get(Chat.class, chatId);
         chat.setStatus(status);
         session.merge(chat);
         session.getTransaction().commit();
@@ -42,14 +42,14 @@ public class ChatsManager implements Manager {
     public static String getStatus(Message message) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
-        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat chat = session.get(Chat.class, chatId);
         return chat.getStatus();
     }
 
     public static String getLocale(Message message) {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
-        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat chat = session.get(Chat.class, chatId);
         return chat.getLocale();
     }
 
@@ -57,7 +57,7 @@ public class ChatsManager implements Manager {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
         session.beginTransaction();
-        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat chat = session.get(Chat.class, chatId);
         chat.setLocale(locale);
         session.merge(chat);
         session.getTransaction().commit();
@@ -67,7 +67,7 @@ public class ChatsManager implements Manager {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
         session.beginTransaction();
-        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat chat = session.get(Chat.class, chatId);
         chat.setLocation(location);
         session.merge(chat);
         session.getTransaction().commit();
@@ -77,7 +77,7 @@ public class ChatsManager implements Manager {
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         int chatId = Math.toIntExact(message.getChatId());
         session.beginTransaction();
-        Chat chat = (Chat) session.get(Chat.class, chatId);
+        Chat chat = session.get(Chat.class, chatId);
         chat.setStatus("");
         session.merge(chat);
         session.getTransaction().commit();
